@@ -1,0 +1,52 @@
+name: Deploy to Edge
+
+on:
+  push:
+    branches:
+      - main
+      - pre
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'prod'
+        type: choice
+        options:
+          - prod
+          - preview
+
+env:
+  INFRA_REPO: christophvarga/0000__infra-multi__ci-cd
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set environment
+        id: env
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/pre" ]; then
+            echo "environment=preview" >> $GITHUB_OUTPUT
+          elif [ "${{ inputs.environment }}" != "" ]; then
+            echo "environment=${{ inputs.environment }}" >> $GITHUB_OUTPUT
+          else
+            echo "environment=prod" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Trigger Edge Deployment
+        env:
+          GITHUB_TOKEN: ${{ secrets.INFRA_DEPLOY_TOKEN }}
+        run: |
+          curl -X POST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/$INFRA_REPO/dispatches" \
+            -d '{
+              "event_type": "edge-deploy",
+              "client_payload": {
+                "app_name": "qr",
+                "environment": "${{ steps.env.outputs.environment }}",
+                "branch": "${{ github.ref_name }}"
+              }
+            }'

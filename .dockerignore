@@ -1,0 +1,36 @@
+# Git
+.git/
+.gitignore
+
+# Python/Test artifacts
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+.pytest_cache/
+*.egg-info/
+
+# Test files
+87_tests/
+89_output/
+90_reports/
+test_*.py
+test_*.png
+fix_verified_*.png
+wlan_qr_*.png
+pytest.ini
+
+# Documentation
+00_infos/
+*.md
+
+# IDE/OS
+.idea/
+.vscode/
+.DS_Store
+*.swp
+
+# Config files not needed in container
+.droid.yaml*
+.antigravity/
+CLAUDE.md

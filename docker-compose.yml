@@ -1,0 +1,19 @@
+version: '3.9'
+
+services:
+  qr:
+    build: .
+    container_name: qr
+    restart: unless-stopped
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.qr.rule=Host(`qr.varga.media`)"
+      - "traefik.http.routers.qr.entrypoints=web"
+      - "traefik.http.services.qr.loadbalancer.server.port=80"
+      - "traefik.docker.network=web"
+
+networks:
+  web:
+    external: true
