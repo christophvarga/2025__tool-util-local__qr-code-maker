@@ -13,7 +13,7 @@ echo "[deploy] Waiting for container to be healthy..."
 sleep 3
 
 # Verify container is running
-if docker compose ps | grep -q "qr.*running"; then
+if docker compose ps | grep -q "Up"; then
     echo "[deploy] Container is running"
     docker compose ps
 else
