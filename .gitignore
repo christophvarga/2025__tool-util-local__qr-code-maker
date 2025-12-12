@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+*.egg-info/
+.pytest_cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test artifacts (kept in 89_output/)
+89_output/
+
+# Temporary scripts
+85_code/_temp_scripts/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Test images (generated during development)
+test_*.png
+fix_verified_*.png
+wlan_qr_*.png

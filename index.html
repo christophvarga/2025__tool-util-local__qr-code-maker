@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR-Code Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>QR-Code Generator</h1>
+        <p class="subtitle">Erstelle individuelle QR-Codes</p>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="text">Text/URL</div>
+            <div class="tab" data-tab="wifi">WLAN</div>
+            <div class="tab" data-tab="design">Design</div>
+        </div>
+
+        <div id="textTab" class="tab-content active">
+            <div class="input-group">
+                <label for="qrText">Text oder URL eingeben:</label>
+                <textarea id="qrText" placeholder="z.B. https://beispiel.de oder beliebiger Text..."></textarea>
+            </div>
+        </div>
+
+        <div id="wifiTab" class="tab-content">
+            <div class="input-group">
+                <label for="wifiSsid">Netzwerkname (SSID):</label>
+                <input type="text" id="wifiSsid" placeholder="Mein-WLAN">
+            </div>
+            <div class="input-group">
+                <label for="wifiPassword">Passwort:</label>
+                <input type="password" id="wifiPassword" placeholder="Passwort">
+            </div>
+            <div class="input-group">
+                <label for="wifiSecurity">Verschlüsselung:</label>
+                <select id="wifiSecurity">
+                    <option value="WPA">WPA/WPA2</option>
+                    <option value="WEP">WEP</option>
+                    <option value="nopass">Keine (Offen)</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="designTab" class="tab-content">
+            <div class="input-group">
+                <label>Farben:</label>
+                <div class="color-picker-row">
+                    <div class="color-input">
+                        <label for="fgColor" style="font-size: 0.8em; margin-bottom: 4px;">Vordergrund</label>
+                        <input type="color" id="fgColor" value="#000000">
+                    </div>
+                    <div class="color-input">
+                        <label for="bgColor" style="font-size: 0.8em; margin-bottom: 4px;">Hintergrund</label>
+                        <input type="color" id="bgColor" value="#ffffff">
+                    </div>
+                </div>
+
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="useGradient">
+                    <label for="useGradient">Farbverlauf aktivieren</label>
+                </div>
+
+                <div class="color-input">
+                    <label for="gradientColor" style="font-size: 0.8em; margin-bottom: 4px;">Verlauf-Farbe</label>
+                    <input type="color" id="gradientColor" value="#0000ff" disabled>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Logo:</label>
+                <div class="file-upload">
+                    <input type="file" id="logoInput" accept="image/*">
+                    <div class="file-upload-btn">Logo auswählen (PNG/JPG)</div>
+                </div>
+                <div id="logoName" style="font-size: 0.85em; color: #666; margin-bottom: 12px; text-align: center;">Kein
+                    Logo ausgewählt</div>
+
+                <label for="logoSize">Logo Größe: <span id="logoSizeVal">20%</span></label>
+                <div class="range-wrapper">
+                    <input type="range" id="logoSize" min="5" max="30" value="20">
+                </div>
+            </div>
+        </div>
+
+        <div class="advanced-options">
+            <div class="advanced-title">Erweiterte Einstellungen</div>
+            <div class="options-row">
+                <div class="input-group option-small">
+                    <label for="eccLevel">Fehlerkorrektur:</label>
+                    <select id="eccLevel">
+                        <option value="L">Niedrig (7%)</option>
+                        <option value="M">Mittel (15%)</option>
+                        <option value="Q">Hoch (25%)</option>
+                        <option value="H" selected>Sehr Hoch (30%)</option>
+                    </select>
+                </div>
+                <div class="input-group option-small">
+                    <label for="pixelSize">Ausgabegröße:</label>
+                    <select id="pixelSize">
+                        <option value="256">256 px</option>
+                        <option value="400" selected>400 px</option>
+                        <option value="512">512 px</option>
+                        <option value="800">800 px</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <button id="generateBtn">QR-Code Generieren</button>
+
+        <div id="qrcode">
+            <div class="empty-state">QR-Code wird hier angezeigt</div>
+        </div>
+
+        <div class="buttons">
+            <button id="downloadBtn">Download PNG</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
