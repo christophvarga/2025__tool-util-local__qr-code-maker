@@ -1,14 +1,14 @@
 # QR Code Maker - LLM Context
 
-> Version: 1.1.0
-> Stand: 2025-12-13
-> Status: **FEATURE-COMPLETE**
+> Version: 1.2.0
+> Stand: 2025-12-17
+> Status: **DEPLOYED**
 
 ## Ziel & Scope
 
-Lokales QR-Code-Generator-Tool als standalone Web-App. Laeuft komplett client-side (Vanilla JS), keine Server-Komponente noetig. Generiert QR-Codes fuer Text/URLs und WLAN-Zugangsdaten mit umfangreichen Anpassungsmoeglichkeiten (Farben, Logos, Groessen).
+QR-Code-Generator Web-App. Laeuft komplett client-side (Vanilla JS), keine Server-Komponente noetig. Generiert QR-Codes fuer Text/URLs und WLAN-Zugangsdaten mit umfangreichen Anpassungsmoeglichkeiten (Farben, Logos, Groessen).
 
-**Zielgruppe:** Lokale Nutzung, kein Deployment vorgesehen.
+**Live:** https://qr.varga.media
 
 ## Implementierte Features
 
@@ -23,6 +23,7 @@ Lokales QR-Code-Generator-Tool als standalone Web-App. Laeuft komplett client-si
 | Logo-Integration (5-30%) | Fertig |
 | Logo-Entfernung | Fertig |
 | Download als PNG | Fertig |
+| Download als SVG (vektorbasiert) | Fertig |
 | Responsive Glassmorphism-UI | Fertig |
 | **Accessibility (ARIA, Keyboard-Nav)** | Fertig |
 | **Inline-Fehlermeldungen** | Fertig |

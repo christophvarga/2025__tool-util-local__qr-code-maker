@@ -1,46 +1,62 @@
 # Changes Report
 
-> Datum: 2025-12-13
-> Version: 1.0.0 -> 1.1.0
+> Datum: 2025-12-17
+> Version: 1.1.0 -> 1.2.0
 
 ## Aenderungen
 
-### Prioritaet 1: Accessibility Fixes
+### Deployment auf Edge-Stack
+
+| Aenderung | Dateien | Status |
+|-----------|---------|--------|
+| Docker-Containerisierung (nginx:alpine) | Dockerfile, docker-compose.yml | Fertig |
+| Traefik-Routing | docker-compose.yml | Fertig |
+| GitHub Actions CI/CD | .github/workflows/deploy.yml | Fertig |
+| Cloudflare Tunnel DNS | cloudflared-config.yml (infra) | Fertig |
+
+**Live:** https://qr.varga.media
+
+### Neue Features
 
 | Aenderung | Dateien | Tests |
 |-----------|---------|-------|
-| Semantische Tabs mit ARIA | index.html, script.js | 6 neue Tests |
-| Focus-visible Styles | styles.css | - |
-| Verbesserter Farbkontrast | styles.css | - |
-| Inline-Fehlermeldungen statt alert() | index.html, script.js, styles.css | 2 aktualisierte Tests |
-
-### Prioritaet 2: UX Verbesserungen
-
-| Aenderung | Dateien | Tests |
-|-----------|---------|-------|
-| Passwort-Toggle WLAN | index.html, script.js, styles.css | 4 neue Tests |
-| Logo-Entfernung | index.html, script.js, styles.css | - |
-| Loading/Success State | index.html, script.js, styles.css | 1 aktualisierter Test |
-
-### Prioritaet 3: Features
-
-| Aenderung | Dateien | Tests |
-|-----------|---------|-------|
-| Reset Button | index.html, script.js, styles.css | 4 neue Tests |
+| SVG Download Option | index.html, script.js | - |
 
 ## Betroffene Dateien
 
-- `/index.html` - Tab ARIA, Error Container, Passwort-Toggle, Reset Button, Loading State
-- `/script.js` - Keyboard Navigation, Error Handling, Toggle Logic, Reset Logic
-- `/styles.css` - Focus-visible, Error Styles, Toggle Styles, Reset Button Styles
-- `/87_tests/e2e/test_qr_code_ui.py` - 14 neue Tests, 3 aktualisierte Tests
+- `/index.html` - SVG Download Button hinzugefuegt
+- `/script.js` - getQRText() Helper, downloadSvgBtn Handler
+- `/Dockerfile` - NEU: nginx:alpine Container
+- `/docker-compose.yml` - NEU: Traefik-Labels, web-Netzwerk
+- `/deploy.sh` - NEU: Build & Deploy Script
+- `/.github/workflows/deploy.yml` - NEU: Edge Deployment Workflow
 
-## Tests
+## Deployment-Konfiguration
 
-- Vorher: 33 Tests
-- Nachher: 47 Tests (+14)
-- Status: Alle gruen
+- **App-Name:** qr
+- **Hostname:** qr.varga.media
+- **Auth:** Public (keine Authentifizierung)
+- **Container:** nginx:alpine, Port 80
+- **Registry:** apps-registry.json (0000__infra-multi__ci-cd)
 
 ## Risiken/HOLDs
 
 Keine.
+
+---
+
+## Vorherige Version (1.0.0 -> 1.1.0)
+
+> Datum: 2025-12-13
+
+### Accessibility Fixes
+- Semantische Tabs mit ARIA
+- Focus-visible Styles
+- Verbesserter Farbkontrast
+- Inline-Fehlermeldungen statt alert()
+
+### UX Verbesserungen
+- Passwort-Toggle WLAN
+- Logo-Entfernung
+- Loading/Success State
+- Reset Button
