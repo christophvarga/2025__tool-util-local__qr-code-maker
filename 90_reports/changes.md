@@ -1,38 +1,46 @@
-# Changes - Playwright UI Tests Setup
+# Changes Report
 
-## Datum: 2025-12-12
+> Datum: 2025-12-13
+> Version: 1.0.0 -> 1.1.0
 
 ## Aenderungen
 
-### Neue Dateien
-- `87_tests/conftest.py` - Pytest Fixtures fuer QR Code Maker Tests
-- `87_tests/e2e/test_qr_code_ui.py` - 33 E2E UI Tests mit Playwright
-- `pytest.ini` - Pytest Konfiguration
-- `90_reports/test-report.md` - Test Report
+### Prioritaet 1: Accessibility Fixes
 
-### Neue Ordner
-- `87_tests/` - Zentrale Teststruktur
-- `87_tests/e2e/` - End-to-End Tests
-- `89_output/test_reports/` - Testartefakte
-- `90_reports/` - Reports
+| Aenderung | Dateien | Tests |
+|-----------|---------|-------|
+| Semantische Tabs mit ARIA | index.html, script.js | 6 neue Tests |
+| Focus-visible Styles | styles.css | - |
+| Verbesserter Farbkontrast | styles.css | - |
+| Inline-Fehlermeldungen statt alert() | index.html, script.js, styles.css | 2 aktualisierte Tests |
 
-### Geaenderte Dateien
-- `venv/` - Neu erstellt wegen defektem Interpreter-Pfad
+### Prioritaet 2: UX Verbesserungen
 
-### Dependencies installiert
-- pytest 9.0.2
-- pytest-playwright 0.7.2
-- pytest-cov 7.0.0
-- playwright 1.57.0
-- Chromium Browser (via playwright install)
+| Aenderung | Dateien | Tests |
+|-----------|---------|-------|
+| Passwort-Toggle WLAN | index.html, script.js, styles.css | 4 neue Tests |
+| Logo-Entfernung | index.html, script.js, styles.css | - |
+| Loading/Success State | index.html, script.js, styles.css | 1 aktualisierter Test |
 
-## Betroffene Bereiche
-- Test-Infrastruktur
-- Keine Aenderungen am produktiven Code
+### Prioritaet 3: Features
+
+| Aenderung | Dateien | Tests |
+|-----------|---------|-------|
+| Reset Button | index.html, script.js, styles.css | 4 neue Tests |
+
+## Betroffene Dateien
+
+- `/index.html` - Tab ARIA, Error Container, Passwort-Toggle, Reset Button, Loading State
+- `/script.js` - Keyboard Navigation, Error Handling, Toggle Logic, Reset Logic
+- `/styles.css` - Focus-visible, Error Styles, Toggle Styles, Reset Button Styles
+- `/87_tests/e2e/test_qr_code_ui.py` - 14 neue Tests, 3 aktualisierte Tests
 
 ## Tests
-- 33 neue E2E Tests hinzugefuegt
-- Alle Tests bestanden
+
+- Vorher: 33 Tests
+- Nachher: 47 Tests (+14)
+- Status: Alle gruen
 
 ## Risiken/HOLDs
-- Keine
+
+Keine.

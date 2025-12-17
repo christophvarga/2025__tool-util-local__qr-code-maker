@@ -49,7 +49,7 @@ class TestPageLoad:
         """Generate button should be visible."""
         button = qr_page.locator("#generateBtn")
         expect(button).to_be_visible()
-        expect(button).to_have_text("QR-Code Generieren")
+        expect(button).to_contain_text("QR-Code Generieren")
 
     def test_download_button_hidden_initially(self, qr_page):
         """Download button should be hidden before QR code generation."""
@@ -124,20 +124,15 @@ class TestTextURLQRCode:
         canvas = qr_page.locator("#qrcode canvas")
         expect(canvas).to_be_visible()
 
-    def test_empty_text_shows_alert(self, qr_page):
-        """Empty text input should trigger alert."""
+    def test_empty_text_shows_inline_error(self, qr_page):
+        """Empty text input should show inline error message."""
         generate_btn = qr_page.locator("#generateBtn")
-
-        alert_message = []
-        qr_page.on("dialog", lambda dialog: (
-            alert_message.append(dialog.message),
-            dialog.accept()
-        ))
+        error_message = qr_page.locator("#textError")
 
         generate_btn.click()
 
-        assert len(alert_message) == 1
-        assert "Text oder URL" in alert_message[0]
+        expect(error_message).to_be_visible()
+        expect(error_message).to_contain_text("Text oder URL")
 
     def test_download_button_appears_after_generation(self, qr_page):
         """Download button should appear after QR code generation."""
@@ -186,22 +181,17 @@ class TestWLANQRCode:
         canvas = qr_page.locator("#qrcode canvas")
         expect(canvas).to_be_visible()
 
-    def test_empty_ssid_shows_alert(self, qr_page):
-        """Empty SSID should trigger alert."""
+    def test_empty_ssid_shows_inline_error(self, qr_page):
+        """Empty SSID should show inline error message."""
         wifi_tab = qr_page.locator('.tab[data-tab="wifi"]')
         wifi_tab.click()
 
-        alert_message = []
-        qr_page.on("dialog", lambda dialog: (
-            alert_message.append(dialog.message),
-            dialog.accept()
-        ))
-
+        error_message = qr_page.locator("#wifiError")
         generate_btn = qr_page.locator("#generateBtn")
         generate_btn.click()
 
-        assert len(alert_message) == 1
-        assert "SSID" in alert_message[0]
+        expect(error_message).to_be_visible()
+        expect(error_message).to_contain_text("SSID")
 
     def test_wifi_security_options(self, qr_page):
         """Security dropdown should have all options."""
@@ -325,6 +315,134 @@ class TestAdvancedSettings:
         size_select = qr_page.locator("#pixelSize")
         size_select.select_option("800")
         expect(size_select).to_have_value("800")
+
+
+class TestAccessibility:
+    """Tests for accessibility features."""
+
+    def test_tabs_have_role_tablist(self, qr_page):
+        """Tab container should have role=tablist."""
+        tablist = qr_page.locator('[role="tablist"]')
+        expect(tablist).to_be_visible()
+
+    def test_tabs_have_role_tab(self, qr_page):
+        """Each tab should have role=tab."""
+        tabs = qr_page.locator('[role="tab"]')
+        expect(tabs).to_have_count(3)
+
+    def test_tab_panels_have_role_tabpanel(self, qr_page):
+        """Tab panels should have role=tabpanel."""
+        panels = qr_page.locator('[role="tabpanel"]')
+        expect(panels).to_have_count(3)
+
+    def test_active_tab_has_aria_selected(self, qr_page):
+        """Active tab should have aria-selected=true."""
+        text_tab = qr_page.locator('[data-tab="text"]')
+        expect(text_tab).to_have_attribute("aria-selected", "true")
+
+    def test_inactive_tabs_have_aria_selected_false(self, qr_page):
+        """Inactive tabs should have aria-selected=false."""
+        wifi_tab = qr_page.locator('[data-tab="wifi"]')
+        expect(wifi_tab).to_have_attribute("aria-selected", "false")
+
+    def test_keyboard_tab_navigation(self, qr_page):
+        """Arrow keys should navigate between tabs."""
+        text_tab = qr_page.locator('[data-tab="text"]')
+        text_tab.focus()
+        text_tab.press("ArrowRight")
+
+        wifi_tab = qr_page.locator('[data-tab="wifi"]')
+        expect(wifi_tab).to_have_class(re.compile(r"active"))
+
+
+class TestPasswordToggle:
+    """Tests for password visibility toggle."""
+
+    def test_password_toggle_button_exists(self, qr_page):
+        """Password toggle button should exist."""
+        wifi_tab = qr_page.locator('.tab[data-tab="wifi"]')
+        wifi_tab.click()
+
+        toggle = qr_page.locator("#togglePassword")
+        expect(toggle).to_be_visible()
+
+    def test_password_initially_hidden(self, qr_page):
+        """Password field should be type=password initially."""
+        wifi_tab = qr_page.locator('.tab[data-tab="wifi"]')
+        wifi_tab.click()
+
+        password_field = qr_page.locator("#wifiPassword")
+        expect(password_field).to_have_attribute("type", "password")
+
+    def test_toggle_shows_password(self, qr_page):
+        """Clicking toggle should show password."""
+        wifi_tab = qr_page.locator('.tab[data-tab="wifi"]')
+        wifi_tab.click()
+
+        password_field = qr_page.locator("#wifiPassword")
+        toggle = qr_page.locator("#togglePassword")
+        toggle.click()
+
+        expect(password_field).to_have_attribute("type", "text")
+
+    def test_toggle_hides_password_again(self, qr_page):
+        """Clicking toggle twice should hide password again."""
+        wifi_tab = qr_page.locator('.tab[data-tab="wifi"]')
+        wifi_tab.click()
+
+        password_field = qr_page.locator("#wifiPassword")
+        toggle = qr_page.locator("#togglePassword")
+        toggle.click()
+        toggle.click()
+
+        expect(password_field).to_have_attribute("type", "password")
+
+
+class TestResetButton:
+    """Tests for reset functionality."""
+
+    def test_reset_button_hidden_initially(self, qr_page):
+        """Reset button should be hidden before QR code generation."""
+        reset_btn = qr_page.locator("#resetBtn")
+        expect(reset_btn).not_to_be_visible()
+
+    def test_reset_button_appears_after_generation(self, qr_page):
+        """Reset button should appear after QR code generation."""
+        textarea = qr_page.locator("#qrText")
+        textarea.fill("Test content")
+
+        generate_btn = qr_page.locator("#generateBtn")
+        generate_btn.click()
+
+        reset_btn = qr_page.locator("#resetBtn")
+        expect(reset_btn).to_be_visible()
+
+    def test_reset_clears_qr_code(self, qr_page):
+        """Reset should clear the QR code display."""
+        textarea = qr_page.locator("#qrText")
+        textarea.fill("Test content")
+
+        generate_btn = qr_page.locator("#generateBtn")
+        generate_btn.click()
+
+        reset_btn = qr_page.locator("#resetBtn")
+        reset_btn.click()
+
+        canvas = qr_page.locator("#qrcode canvas")
+        expect(canvas).not_to_be_visible()
+
+    def test_reset_clears_input(self, qr_page):
+        """Reset should clear the text input."""
+        textarea = qr_page.locator("#qrText")
+        textarea.fill("Test content")
+
+        generate_btn = qr_page.locator("#generateBtn")
+        generate_btn.click()
+
+        reset_btn = qr_page.locator("#resetBtn")
+        reset_btn.click()
+
+        expect(textarea).to_have_value("")
 
 
 class TestQRCodeRegeneration:

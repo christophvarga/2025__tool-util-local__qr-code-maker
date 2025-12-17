@@ -16,27 +16,41 @@
         <h1>QR-Code Generator</h1>
         <p class="subtitle">Erstelle individuelle QR-Codes</p>
 
-        <div class="tabs">
-            <div class="tab active" data-tab="text">Text/URL</div>
-            <div class="tab" data-tab="wifi">WLAN</div>
-            <div class="tab" data-tab="design">Design</div>
+        <div class="tabs" role="tablist" aria-label="QR-Code Typ">
+            <button class="tab active" data-tab="text" role="tab" aria-selected="true" aria-controls="textTab" id="tab-text" type="button">Text/URL</button>
+            <button class="tab" data-tab="wifi" role="tab" aria-selected="false" aria-controls="wifiTab" id="tab-wifi" type="button">WLAN</button>
+            <button class="tab" data-tab="design" role="tab" aria-selected="false" aria-controls="designTab" id="tab-design" type="button">Design</button>
         </div>
 
-        <div id="textTab" class="tab-content active">
+        <div id="textTab" class="tab-content active" role="tabpanel" aria-labelledby="tab-text" tabindex="0">
             <div class="input-group">
                 <label for="qrText">Text oder URL eingeben:</label>
-                <textarea id="qrText" placeholder="z.B. https://beispiel.de oder beliebiger Text..."></textarea>
+                <textarea id="qrText" placeholder="z.B. https://beispiel.de oder beliebiger Text..." aria-describedby="textError"></textarea>
+                <div id="textError" class="error-message" role="alert" aria-live="polite"></div>
             </div>
         </div>
 
-        <div id="wifiTab" class="tab-content">
+        <div id="wifiTab" class="tab-content" role="tabpanel" aria-labelledby="tab-wifi" tabindex="0">
             <div class="input-group">
                 <label for="wifiSsid">Netzwerkname (SSID):</label>
-                <input type="text" id="wifiSsid" placeholder="Mein-WLAN">
+                <input type="text" id="wifiSsid" placeholder="Mein-WLAN" aria-describedby="wifiError">
+                <div id="wifiError" class="error-message" role="alert" aria-live="polite"></div>
             </div>
             <div class="input-group">
                 <label for="wifiPassword">Passwort:</label>
-                <input type="password" id="wifiPassword" placeholder="Passwort">
+                <div class="password-wrapper">
+                    <input type="password" id="wifiPassword" placeholder="Passwort">
+                    <button type="button" id="togglePassword" class="password-toggle" aria-label="Passwort anzeigen">
+                        <svg class="eye-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <svg class="eye-off-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                            <line x1="1" y1="1" x2="23" y2="23"></line>
+                        </svg>
+                    </button>
+                </div>
             </div>
             <div class="input-group">
                 <label for="wifiSecurity">Verschlüsselung:</label>
@@ -48,7 +62,7 @@
             </div>
         </div>
 
-        <div id="designTab" class="tab-content">
+        <div id="designTab" class="tab-content" role="tabpanel" aria-labelledby="tab-design" tabindex="0">
             <div class="input-group">
                 <label>Farben:</label>
                 <div class="color-picker-row">
@@ -79,10 +93,17 @@
                     <input type="file" id="logoInput" accept="image/*">
                     <div class="file-upload-btn">Logo auswählen (PNG/JPG)</div>
                 </div>
-                <div id="logoName" style="font-size: 0.85em; color: #666; margin-bottom: 12px; text-align: center;">Kein
-                    Logo ausgewählt</div>
+                <div class="logo-status">
+                    <span id="logoName">Kein Logo ausgewählt</span>
+                    <button type="button" id="removeLogo" class="remove-logo-btn" style="display: none;" aria-label="Logo entfernen">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
 
-                <label for="logoSize">Logo Größe: <span id="logoSizeVal">20%</span></label>
+                <label for="logoSize">Logo Groesse: <span id="logoSizeVal">20%</span></label>
                 <div class="range-wrapper">
                     <input type="range" id="logoSize" min="5" max="30" value="20">
                 </div>
@@ -113,7 +134,15 @@
             </div>
         </div>
 
-        <button id="generateBtn">QR-Code Generieren</button>
+        <button id="generateBtn">
+            <span class="btn-text">QR-Code Generieren</span>
+            <span class="btn-loading" style="display: none;">
+                <svg class="spinner" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" stroke-dasharray="31.4 31.4" stroke-linecap="round"></circle>
+                </svg>
+                Generiere...
+            </span>
+        </button>
 
         <div id="qrcode">
             <div class="empty-state">QR-Code wird hier angezeigt</div>
@@ -121,6 +150,8 @@
 
         <div class="buttons">
             <button id="downloadBtn">Download PNG</button>
+            <button id="downloadSvgBtn" style="display: none;">Download SVG</button>
+            <button id="resetBtn" type="button" class="reset-btn" style="display: none;">Zuruecksetzen</button>
         </div>
     </div>
 

@@ -121,7 +121,7 @@ h1 {
 
 .subtitle {
     text-align: center;
-    color: #666;
+    color: #4a5568;
     font-size: 1em;
     margin-bottom: 40px;
     font-weight: 400;
@@ -202,6 +202,69 @@ textarea {
     line-height: 1.5;
 }
 
+/* Error Messages */
+.error-message {
+    color: #c53030;
+    font-size: 0.875em;
+    font-weight: 500;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #fed7d7;
+    border-radius: 8px;
+    display: none;
+}
+
+.error-message:not(:empty) {
+    display: block;
+}
+
+.input-error {
+    border: 2px solid #c53030 !important;
+    background: #fff5f5 !important;
+}
+
+/* Password Toggle */
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper input {
+    padding-right: 48px;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    padding: 4px;
+    margin: 0;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: none;
+}
+
+.password-toggle:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #475569;
+    transform: none;
+    box-shadow: none;
+}
+
+.password-toggle:focus-visible {
+    outline: 2px solid #4facfe;
+    outline-offset: 2px;
+}
+
 button {
     width: 100%;
     padding: 18px;
@@ -252,6 +315,44 @@ button:disabled {
     box-shadow: none;
 }
 
+button:focus-visible {
+    outline: 3px solid #00f2fe;
+    outline-offset: 2px;
+}
+
+/* Button Loading State */
+.btn-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+button.loading {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+/* Success State for QR Code */
+#qrcode.success {
+    animation: successPulse 0.4s ease-out;
+}
+
+@keyframes successPulse {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
 #qrcode {
     display: flex;
     justify-content: center;
@@ -277,7 +378,7 @@ button:disabled {
 }
 
 .empty-state {
-    color: #a0aec0;
+    color: #718096;
     text-align: center;
     font-size: 1em;
     font-weight: 500;
@@ -292,6 +393,16 @@ button:disabled {
 
 #downloadBtn:hover {
     box-shadow: 0 15px 30px rgba(67, 233, 123, 0.35);
+}
+
+.reset-btn {
+    background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+    box-shadow: 0 10px 20px rgba(100, 116, 139, 0.2);
+    color: white;
+}
+
+.reset-btn:hover {
+    box-shadow: 0 15px 30px rgba(100, 116, 139, 0.3);
 }
 
 .buttons {
@@ -338,6 +449,11 @@ button:disabled {
 .tab:hover:not(.active) {
     color: #475569;
     background: rgba(255, 255, 255, 0.5);
+}
+
+.tab:focus-visible {
+    outline: 2px solid #4facfe;
+    outline-offset: 2px;
 }
 
 .tab-content {
@@ -475,6 +591,46 @@ button:disabled {
     background: #f1f5f9;
     border-color: #94a3b8;
     color: #475569;
+}
+
+/* Logo Status */
+.logo-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.85em;
+    color: #4a5568;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.remove-logo-btn {
+    width: 24px;
+    height: 24px;
+    padding: 4px;
+    margin: 0;
+    background: #fed7d7;
+    border: none;
+    border-radius: 6px;
+    color: #c53030;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: none;
+}
+
+.remove-logo-btn:hover {
+    background: #feb2b2;
+    transform: none;
+    box-shadow: none;
+}
+
+.remove-logo-btn:focus-visible {
+    outline: 2px solid #c53030;
+    outline-offset: 2px;
 }
 
 .range-wrapper {
