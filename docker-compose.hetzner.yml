@@ -1,0 +1,25 @@
+services:
+  qr:
+    image: ghcr.io/christophvarga/apps--qr-code-maker:latest
+    pull_policy: always
+    container_name: qr
+    restart: unless-stopped
+    mem_limit: 80m
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.qr.rule=Host(`qr.varga.media`)
+      - traefik.http.routers.qr.entrypoints=web
+      - traefik.http.services.qr.loadbalancer.server.port=80
+      - traefik.docker.network=web
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
