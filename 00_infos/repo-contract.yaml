@@ -1,33 +1,62 @@
 # repo-contract.yaml — Maschinenlesbarer Vertrag (Kanon v2)
-# Generiert: 2026-03-28 | Schema: v1.0
-# REVIEW ERFORDERLICH: Bitte manuell pruefen und anpassen
+# Generiert: 2026-03-28 | Reviewed: 2026-05-22 | Schema: v1.0
 
 contract_version: "1.0"
 
+# === IDENTITAET ===
 repo:
   name: "apps--qr-code-maker"
+  description: "Lokaler QR-Code-Generator (Vanilla JS, client-side, statisch via nginx)"
   suite: "apps"
   status: "active"
 
+# === REPO-TYP ===
 type:
-  primary: "webapp"
+  primary: "static-site"
+  tags: [frontend]
 
+# === TECH-STACK ===
 stack:
-  languages: [python, javascript]
-  runtime: "python"
+  languages: [javascript]
+  runtime: "static"                         # Vanilla JS, ausgeliefert via nginx
+  framework: "none"
+  package_manager: "none"
+  database: "none"
+  test_framework: "pytest"                  # Playwright-basiert (Python-Tests in 87_tests/)
 
+# === VERZEICHNIS-LAYOUT ===
 paths:
-  source: "."
+  source: "."                               # index.html + script.js + styles.css im Root
   tests: "87_tests/"
+  test_reports: "89_output/test_reports/"
   docs: "00_infos/"
   context: "00_infos/llm-context.md"
   holds: "00_infos/meta/open-questions.md"
+  patterns: ""                              # REVIEW: source unclear (file not present)
+  archive: ""                               # REVIEW: source unclear
+  entrypoint: "index.html"
 
+# === COMMANDS ===
 commands:
-  test: null
+  test: ""                                  # REVIEW: source unclear (Playwright-Setup vorhanden, kein dokumentiertes test-cmd in Makefile)
   test_report: "make test-report"
+  smoke: ""                                 # REVIEW: source unclear
 
+# === DEPLOYMENT ===
 deployment:
   deployed: true
+  mode: "app-local"
   ci:
     platform: "woodpecker"
+    auto_deploy: true
+    deploy_branches: ["main"]
+
+# === ENV-VARIABLEN (nur Keys) ===
+env:
+  required: []
+  optional: []
+
+# === ABHAENGIGKEITEN ===
+depends_on:
+  services: []
+  repos: ["infra--ci-cd"]
