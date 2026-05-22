@@ -1,10 +1,26 @@
-.PHONY: install test test-report
+.PHONY: install install-py311 test test-report check-deps
 
+# Default install uses ambient pip/python (must match pytest's interpreter).
 install:
 	pip install -r requirements.txt
 	playwright install chromium
 
-test:
+# Explicit install for macOS where pytest is bound to /opt/homebrew/opt/python@3.11
+# (PIP_REQUIRE_VIRTUALENV=1 in shell env is bypassed for this user-install).
+install-py311:
+	PIP_REQUIRE_VIRTUALENV=false /opt/homebrew/opt/python@3.11/bin/python3.11 \
+		-m pip install --break-system-packages --user -r requirements.txt
+	PIP_REQUIRE_VIRTUALENV=false /opt/homebrew/opt/python@3.11/bin/python3.11 \
+		-m playwright install chromium
+
+# Verify playwright is importable in the same interpreter pytest uses.
+check-deps:
+	@PYBIN=$$(head -1 $$(which pytest) | sed 's|^#!||'); \
+		echo "pytest interpreter: $$PYBIN"; \
+		$$PYBIN -c "import playwright.sync_api; print('playwright OK')" \
+		|| (echo "FAIL: playwright missing in pytest interpreter — run 'make install-py311'"; exit 1)
+
+test: check-deps
 	pytest 87_tests/ -v --tb=short
 
 test-report:
