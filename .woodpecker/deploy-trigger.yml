@@ -41,6 +41,7 @@ steps:
           -d "{
             \"branch\": \"main\",
             \"variables\": {
+              \"PIPELINE_KIND\": \"edge-deploy\",
               \"APP_NAME\": \"qr\",
               \"DEPLOY_BRANCH\": \"${CI_COMMIT_BRANCH}\",
               \"ENVIRONMENT\": \"$${ENVIRONMENT}\"
