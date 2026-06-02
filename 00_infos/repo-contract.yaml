@@ -1,7 +1,7 @@
 # repo-contract.yaml — Maschinenlesbarer Vertrag (Kanon v2)
-# Generiert: 2026-03-28 | Reviewed: 2026-05-22 | Schema: v1.0
+# Generiert: 2026-03-28 | Reviewed: 2026-05-22 | Schema: v2.0
 
-contract_version: "1.0"
+contract_version: "2.0"
 
 # === IDENTITAET ===
 repo:
@@ -19,6 +19,7 @@ type:
 stack:
   languages: [javascript]
   runtime: "static"                         # Vanilla JS, ausgeliefert via nginx
+  runtime_version: null
   framework: "none"
   package_manager: "none"
   database: "none"
@@ -32,24 +33,41 @@ paths:
   docs: "00_infos/"
   context: "00_infos/llm-context.md"
   holds: "00_infos/meta/open-questions.md"
-  patterns: ""                              # REVIEW: source unclear (file not present)
-  archive: ""                               # REVIEW: source unclear
+  patterns: null
+  archive: null
   entrypoint: "index.html"
 
 # === COMMANDS ===
 commands:
-  test: ""                                  # REVIEW: source unclear (Playwright-Setup vorhanden, kein dokumentiertes test-cmd in Makefile)
+  dev: null
+  build: null
+  test: null
   test_report: "make test-report"
-  smoke: ""                                 # REVIEW: source unclear
+  lint: null
+  smoke: null
 
 # === DEPLOYMENT ===
 deployment:
   deployed: true
   mode: "app-local"
+  domain: "qr.varga.media"
+  health_path: "/"
   ci:
     platform: "woodpecker"
     auto_deploy: true
     deploy_branches: ["main"]
+
+lifecycle:
+  state: "active"
+  kill_date: null
+  owner: "christoph@varga.media"
+  last_review: "2026-05-22"
+
+operational:
+  auth_boundary: "cf-access-isolated"
+  data_store: "none"
+  backup_class: "standard"
+  host: "hetzner-fsn1"
 
 # === ENV-VARIABLEN (nur Keys) ===
 env:
