@@ -27,7 +27,6 @@ const gradientType = document.getElementById('gradientType');
 const transparentBackground = document.getElementById('transparentBackground');
 const qrStyle = document.getElementById('qrStyle');
 const finderStyle = document.getElementById('finderStyle');
-const appTheme = document.getElementById('appTheme');
 const logoEnabled = document.getElementById('logoEnabled');
 const logoInput = document.getElementById('logoInput');
 const logoSize = document.getElementById('logoSize');
@@ -43,10 +42,10 @@ const MAX_QR_TEXT_LENGTH = 4296;
 const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
 
 const COLOR_PRESETS = {
-    neon: { fg: '#172033', bg: '#ffffff', gradient: '#6f52ff', gradientOn: true, theme: 'midnight' },
-    ocean: { fg: '#102235', bg: '#f7fbff', gradient: '#00a7c8', gradientOn: true, theme: 'daylight' },
-    forest: { fg: '#18352a', bg: '#fbfff8', gradient: '#75a843', gradientOn: true, theme: 'daylight' },
-    mono: { fg: '#111827', bg: '#ffffff', gradient: '#111827', gradientOn: false, theme: 'midnight' }
+    neon: { fg: '#172033', bg: '#ffffff', gradient: '#6f52ff', gradientOn: true },
+    ocean: { fg: '#102235', bg: '#f7fbff', gradient: '#00a7c8', gradientOn: true },
+    forest: { fg: '#18352a', bg: '#fbfff8', gradient: '#75a843', gradientOn: true },
+    mono: { fg: '#111827', bg: '#ffffff', gradient: '#111827', gradientOn: false }
 };
 
 let currentTab = 'text';
@@ -734,8 +733,6 @@ function applyPreset(name) {
     bgColor.value = preset.bg;
     gradientColor.value = preset.gradient;
     useGradient.checked = preset.gradientOn;
-    appTheme.value = preset.theme;
-    document.body.dataset.theme = preset.theme;
     updateGradientState();
 
     document.querySelectorAll('.preset-btn').forEach(btn => {
@@ -752,6 +749,7 @@ function setSelectedFormat(format) {
 }
 
 initTabs();
+document.body.dataset.theme = 'orchid';
 updateCharacterCount();
 updateGradientState();
 updateLogoState();
@@ -795,10 +793,6 @@ qrText.addEventListener('keypress', (e) => {
 ].forEach(control => {
     control.addEventListener('input', scheduleRegenerate);
     control.addEventListener('change', scheduleRegenerate);
-});
-
-appTheme.addEventListener('change', () => {
-    document.body.dataset.theme = appTheme.value;
 });
 
 useGradient.addEventListener('change', () => {

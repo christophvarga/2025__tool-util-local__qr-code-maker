@@ -157,7 +157,6 @@ class TestDesignOptions:
 
         expect(qr_page.locator("#qrStyle")).to_be_visible()
         expect(qr_page.locator("#finderStyle")).to_be_visible()
-        expect(qr_page.locator("#appTheme")).to_be_visible()
         expect(qr_page.locator("#useBadge")).to_be_visible()
 
     def test_dot_style_generation(self, qr_page):
@@ -172,12 +171,12 @@ class TestDesignOptions:
         canvas = qr_page.locator("#qrcode canvas")
         expect(canvas).to_be_visible()
 
-    def test_theme_selector_updates_body_theme(self, qr_page):
-        """Changing UI theme should update the body data-theme attribute."""
+    def test_orchid_theme_is_fixed(self, qr_page):
+        """UI theme should stay fixed to Orchid."""
         qr_page.locator('.tab[data-tab="design"]').click()
-        qr_page.locator("#appTheme").select_option("daylight")
 
-        expect(qr_page.locator("body")).to_have_attribute("data-theme", "daylight")
+        expect(qr_page.locator("#appTheme")).to_have_count(0)
+        expect(qr_page.locator("body")).to_have_attribute("data-theme", "orchid")
 
 
 class TestDownloadFormats:
