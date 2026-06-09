@@ -150,6 +150,52 @@ class TestDesignOptions:
         canvas = qr_page.locator("#qrcode canvas")
         expect(canvas).to_be_visible()
 
+    def test_style_controls_present(self, qr_page):
+        """Extended QR style controls should be available in design tab."""
+        design_tab = qr_page.locator('.tab[data-tab="design"]')
+        design_tab.click()
+
+        expect(qr_page.locator("#qrStyle")).to_be_visible()
+        expect(qr_page.locator("#finderStyle")).to_be_visible()
+        expect(qr_page.locator("#appTheme")).to_be_visible()
+        expect(qr_page.locator("#useBadge")).to_be_visible()
+
+    def test_dot_style_generation(self, qr_page):
+        """Dot module and circle finder styles should still generate a QR canvas."""
+        qr_page.locator("#qrText").fill("Styled QR")
+        qr_page.locator('.tab[data-tab="design"]').click()
+
+        qr_page.locator("#qrStyle").select_option("dots")
+        qr_page.locator("#finderStyle").select_option("circle")
+        qr_page.locator("#generateBtn").click()
+
+        canvas = qr_page.locator("#qrcode canvas")
+        expect(canvas).to_be_visible()
+
+    def test_theme_selector_updates_body_theme(self, qr_page):
+        """Changing UI theme should update the body data-theme attribute."""
+        qr_page.locator('.tab[data-tab="design"]').click()
+        qr_page.locator("#appTheme").select_option("daylight")
+
+        expect(qr_page.locator("body")).to_have_attribute("data-theme", "daylight")
+
+
+class TestDownloadFormats:
+    """Tests for additional export formats."""
+
+    def test_svg_download_filename(self, qr_page):
+        """SVG export should download an SVG file."""
+        qr_page.locator("#qrText").fill("SVG export")
+        qr_page.locator("#generateBtn").click()
+        qr_page.locator('.format-btn[data-format="svg"]').click()
+
+        with qr_page.expect_download() as download_info:
+            qr_page.locator("#downloadBtn").click()
+        download = download_info.value
+
+        assert re.match(r"^qrcode-\d{8}-\d{6}\.svg$", download.suggested_filename), \
+            f"Expected SVG timestamp filename, got: {download.suggested_filename}"
+
 
 class TestAdvancedSettings:
     """Tests for advanced settings (ECC level, output size)."""

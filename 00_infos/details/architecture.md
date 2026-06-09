@@ -23,7 +23,7 @@
 │  - Canvas-Rendering                 │
 │  - Logo-Overlay                     │
 │  - Gradient-Rendering               │
-│  - Download-Handler                 │
+│  - PNG/SVG/PDF/EPS-Export           │
 └─────────────────────────────────────┘
      │
      ▼
@@ -37,7 +37,7 @@
 ┌─────────────────────────────────────┐
 │      Canvas (Browser-API)           │
 │   - Pixel-Rendering                 │
-│   - PNG-Export                      │
+│   - PNG/PDF-Export                  │
 └─────────────────────────────────────┘
 ```
 
@@ -48,15 +48,15 @@
 **Interne Module (script.js):**
 - `generateQRCode()` - Haupt-Entry-Point, koordiniert QR-Generierung
 - Tab-Event-Listener - UI-Navigation
-- Canvas-Manipulation - Rendering mit Farben, Gradienten, Logos
+- Canvas-Manipulation - Rendering mit Styles, Farben, Gradienten, Logos und Badge
+- SVG/EPS/PDF-Builder - Client-side Export ohne Backend
 - FileReader-API - Logo-Upload verarbeiten
-- Blob/URL-API - PNG-Download
+- Blob/URL-API - Datei-Downloads
 
 ## Nicht-Ziele & Constraints
 
 - **Kein Backend:** Rein client-side, keine Server-Logik
-- **Kein Deployment:** Lokales Tool, keine Edge-Integration
+- **Deployment nur statisch:** Auslieferung als nginx-Container hinter Traefik
 - **Keine Persistenz:** Kein LocalStorage, keine DB
 - **Keine User-Verwaltung:** Single-User Tool
 - **Browser-Abhaengig:** Benoetigt moderne Browser mit Canvas-Support
-- **Keine SVG-Ausgabe:** Nur PNG-Export implementiert

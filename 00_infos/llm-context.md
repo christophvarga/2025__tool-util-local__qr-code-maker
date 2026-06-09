@@ -1,14 +1,14 @@
 # QR Code Maker - LLM Context
 
-> Version: 1.2.15
-> Stand: 27.02.2026
+> Version: 1.3.0
+> Stand: 09.06.2026
 > Status: **FEATURE-COMPLETE**
 
 ## Ziel & Scope
 
-Lokales QR-Code-Generator-Tool als standalone Web-App. Laeuft komplett client-side (Vanilla JS), keine Server-Komponente noetig. Generiert QR-Codes fuer Text/URLs und WLAN-Zugangsdaten mit umfangreichen Anpassungsmoeglichkeiten (Farben, Logos, Groessen).
+Lokales und live verfuegbares QR-Code-Generator-Tool als standalone Web-App. Laeuft komplett client-side (Vanilla JS), keine Server-Komponente noetig. Generiert QR-Codes fuer Text/URLs und WLAN-Zugangsdaten mit umfangreichen Anpassungsmoeglichkeiten (Styles, Farben, Logos, Themes, Groessen und Exportformaten).
 
-**Zielgruppe:** Lokale Nutzung, kein Deployment vorgesehen.
+**Zielgruppe:** Lokale Nutzung und statisches Live-Hosting unter `qr.varga.media`.
 
 ## Implementierte Features
 
@@ -17,11 +17,14 @@ Lokales QR-Code-Generator-Tool als standalone Web-App. Laeuft komplett client-si
 | Text/URL QR-Codes | Fertig |
 | WLAN QR-Codes (SSID, Passwort, Verschluesselung) | Fertig |
 | Error Correction Levels (L/M/Q/H) | Fertig |
-| Output-Groessen (256/400/512/800px) | Fertig |
+| Output-Groessen (256/400/800/1024px) | Fertig |
+| QR-Code Styles (klassisch, abgerundet, Punkte, classy) | Fertig (v1.3.0) |
+| Finder/Ecken-Styles (klassisch, abgerundet, Kreise) | Fertig (v1.3.0) |
+| UI Themes & Farb-Presets | Fertig (v1.3.0) |
 | Farbanpassung (Vorder-/Hintergrund) | Fertig |
-| Farbverlauf mit Toggle | Fertig |
-| Logo-Integration (5-30%) | Fertig |
-| Download als PNG | Fertig |
+| Farbverlauf mit Toggle und Verlaufstyp | Fertig |
+| Logo-Integration (8-30%) und Mitte-Badge | Fertig |
+| Download als PNG/SVG/PDF/EPS | Fertig (v1.3.0) |
 | Responsive Glassmorphism-UI | Fertig |
 | Input-Sanitization & WiFi-Escaping | Fertig (v1.2.0) |
 | File-Upload-Validierung (5MB, Typ, Dimensions) | Fertig (v1.2.0) |
@@ -36,7 +39,7 @@ Lokales QR-Code-Generator-Tool als standalone Web-App. Laeuft komplett client-si
 - **Frontend:** Vanilla JS (ES6+), HTML5, CSS3
 - **QR-Library:** qrcode-generator@1.4.4 (CDN, SRI-gesichert)
 - **Fonts:** Google Fonts - Outfit
-- **Tests:** Playwright (Python) - 8 Testklassen, 47 Tests
+- **Tests:** Playwright (Python) - 65 E2E-Tests
 - **CI/CD:** Woodpecker CI (Auto-Merge) + GitHub Actions (Deploy)
 - **Container:** Nginx Alpine mit Custom-Config (Gzip, Caching, Health-Endpoint)
 
