@@ -120,6 +120,7 @@ class TestDesignOptions:
         """Logo size slider should update displayed value."""
         design_tab = qr_page.locator('.tab[data-tab="design"]')
         design_tab.click()
+        qr_page.locator("#logoEnabled").check()
 
         slider = qr_page.locator("#logoSize")
         value_display = qr_page.locator("#logoSizeVal")
@@ -158,6 +159,11 @@ class TestDesignOptions:
         expect(qr_page.locator("#qrStyle")).to_be_visible()
         expect(qr_page.locator("#finderStyle")).to_be_visible()
         expect(qr_page.locator("#useBadge")).to_be_visible()
+        expect(qr_page.locator("#logoOptions")).to_be_hidden()
+
+        qr_page.locator("#logoEnabled").check()
+
+        expect(qr_page.locator("#logoOptions")).to_be_visible()
 
     def test_dot_style_generation(self, qr_page):
         """Dot module and circle finder styles should still generate a QR canvas."""
@@ -199,36 +205,45 @@ class TestDownloadFormats:
 class TestAdvancedSettings:
     """Tests for advanced settings (ECC level, output size)."""
 
+    def open_advanced(self, qr_page):
+        qr_page.locator(".advanced-options summary").click()
+
     def test_ecc_level_options(self, qr_page):
         """ECC level dropdown should have all options."""
+        self.open_advanced(qr_page)
         ecc_select = qr_page.locator("#eccLevel")
         options = ecc_select.locator("option")
         expect(options).to_have_count(4)
 
     def test_ecc_default_value(self, qr_page):
         """Default ECC level should be H (Sehr Hoch)."""
+        self.open_advanced(qr_page)
         ecc_select = qr_page.locator("#eccLevel")
         expect(ecc_select).to_have_value("H")
 
     def test_pixel_size_options(self, qr_page):
         """Pixel size dropdown should have all options."""
+        self.open_advanced(qr_page)
         size_select = qr_page.locator("#pixelSize")
         options = size_select.locator("option")
         expect(options).to_have_count(4)
 
     def test_pixel_size_default_value(self, qr_page):
         """Default pixel size should be 400."""
+        self.open_advanced(qr_page)
         size_select = qr_page.locator("#pixelSize")
         expect(size_select).to_have_value("400")
 
     def test_change_ecc_level(self, qr_page):
         """Should be able to change ECC level."""
+        self.open_advanced(qr_page)
         ecc_select = qr_page.locator("#eccLevel")
         ecc_select.select_option("L")
         expect(ecc_select).to_have_value("L")
 
     def test_change_output_size(self, qr_page):
         """Should be able to change output size."""
+        self.open_advanced(qr_page)
         size_select = qr_page.locator("#pixelSize")
         size_select.select_option("800")
         expect(size_select).to_have_value("800")

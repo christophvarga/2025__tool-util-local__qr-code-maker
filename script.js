@@ -28,6 +28,7 @@ const transparentBackground = document.getElementById('transparentBackground');
 const qrStyle = document.getElementById('qrStyle');
 const finderStyle = document.getElementById('finderStyle');
 const logoEnabled = document.getElementById('logoEnabled');
+const logoOptions = document.getElementById('logoOptions');
 const logoInput = document.getElementById('logoInput');
 const logoSize = document.getElementById('logoSize');
 const logoSizeVal = document.getElementById('logoSizeVal');
@@ -722,7 +723,10 @@ function updateGradientState() {
 }
 
 function updateLogoState() {
-    logoInput.disabled = !logoEnabled.checked;
+    const enabled = logoEnabled.checked;
+    logoOptions.hidden = !enabled;
+    logoInput.disabled = !enabled;
+    logoSize.disabled = !enabled;
 }
 
 function applyPreset(name) {

@@ -455,9 +455,18 @@ body[data-theme="daylight"] select {
     align-items: center;
 }
 
+.badge-options {
+    grid-template-columns: minmax(0, 1fr);
+    margin-bottom: 8px;
+}
+
 .inline-control {
     margin-bottom: 0;
     grid-column: 1 / -1;
+}
+
+.logo-options {
+    margin-top: 8px;
 }
 
 .file-upload {
@@ -529,6 +538,10 @@ input[type="range"] {
 
 .advanced-options summary::-webkit-details-marker {
     display: none;
+}
+
+.advanced-options:not([open]) summary {
+    margin-bottom: 0;
 }
 
 .option-small {

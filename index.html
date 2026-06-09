@@ -13,7 +13,7 @@
     <link rel="icon" href="data:,">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=1.3.1">
+    <link rel="stylesheet" href="styles.css?v=1.3.2">
 </head>
 
 <body data-theme="orchid">
@@ -164,24 +164,26 @@
                     </div>
 
                     <div class="settings-card">
-                        <label class="toggle-row" for="logoEnabled">
-                            <input type="checkbox" id="logoEnabled">
-                            <span>Logo hinzufuegen</span>
-                        </label>
-                        <div class="file-upload">
-                            <input type="file" id="logoInput" accept="image/png,image/jpeg,image/gif,image/webp">
-                            <div class="file-upload-btn">Logo auswaehlen (PNG/JPG/WebP)</div>
-                        </div>
-                        <div id="logoName" class="logo-name-display">Kein Logo ausgewaehlt</div>
                         <label class="toggle-row" for="useBadge">
                             <input type="checkbox" id="useBadge" checked>
                             <span>Mitte-Badge anzeigen</span>
                         </label>
-                        <div class="input-grid">
+                        <div id="badgeOptions" class="input-grid badge-options">
                             <div class="input-group">
                                 <label for="badgeText">Badge Text</label>
                                 <input type="text" id="badgeText" value="URL" maxlength="6">
                             </div>
+                        </div>
+                        <label class="toggle-row" for="logoEnabled">
+                            <input type="checkbox" id="logoEnabled">
+                            <span>Logo hinzufuegen</span>
+                        </label>
+                        <div id="logoOptions" class="logo-options" hidden>
+                            <div class="file-upload">
+                                <input type="file" id="logoInput" accept="image/png,image/jpeg,image/gif,image/webp">
+                                <div class="file-upload-btn">Logo auswaehlen (PNG/JPG/WebP)</div>
+                            </div>
+                            <div id="logoName" class="logo-name-display">Kein Logo ausgewaehlt</div>
                             <div class="input-group">
                                 <label for="logoSize">Logo Groesse: <span id="logoSizeVal">20%</span></label>
                                 <div class="range-wrapper">
@@ -193,7 +195,7 @@
                 </div>
             </div>
 
-            <details class="advanced-options" open>
+            <details class="advanced-options">
                 <summary>
                     <span>Erweiterte Einstellungen</span>
                     <span aria-hidden="true">+</span>
@@ -282,7 +284,7 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
         integrity="sha384-lQXOAyZwHXE55JFyrOMB7nY2Wv+m5ZWNtJcHrd1rceRQXAYNLak8ukN5TjBTcIwz"
         crossorigin="anonymous"></script>
-    <script src="script.js?v=1.3.1"></script>
+    <script src="script.js?v=1.3.2"></script>
 </body>
 
 </html>
