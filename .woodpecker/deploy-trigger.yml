@@ -13,8 +13,10 @@ when:
       - main
 
 steps:
+  # Local-Backend-Agent: image wird als Befehl ausgefuehrt -> bash (wie auto-merge.yml),
+  # curl kommt vom Host statt via apk.
   - name: trigger-deploy
-    image: alpine
+    image: bash
     environment:
       WOODPECKER_API_TOKEN:
         from_secret: woodpecker_api_token
@@ -23,7 +25,6 @@ steps:
       CF_ACCESS_CLIENT_SECRET:
         from_secret: cf_access_client_secret
     commands:
-      - apk add --no-cache curl
       - |
         echo "=== Deploy Trigger ==="
         echo "App: qr"
