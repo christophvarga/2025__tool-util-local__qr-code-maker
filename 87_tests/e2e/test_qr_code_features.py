@@ -93,33 +93,28 @@ class TestDesignOptions:
     """Tests for design customization options."""
 
     def test_color_pickers_present(self, qr_page):
-        """Color pickers should be present in design tab."""
-        design_tab = qr_page.locator('.tab[data-tab="design"]')
-        design_tab.click()
-
+        """Color pickers should be present on the one-page design area."""
         expect(qr_page.locator("#fgColor")).to_be_visible()
         expect(qr_page.locator("#bgColor")).to_be_visible()
 
     def test_gradient_checkbox(self, qr_page):
         """Gradient checkbox should toggle gradient color picker."""
-        design_tab = qr_page.locator('.tab[data-tab="design"]')
-        design_tab.click()
+        qr_page.locator("#optionsDetails summary").click()
 
         gradient_checkbox = qr_page.locator("#useGradient")
         gradient_color = qr_page.locator("#gradientColor")
 
-        expect(gradient_color).to_be_disabled()
-
-        gradient_checkbox.check()
         expect(gradient_color).to_be_enabled()
 
         gradient_checkbox.uncheck()
         expect(gradient_color).to_be_disabled()
 
+        gradient_checkbox.check()
+        expect(gradient_color).to_be_enabled()
+
     def test_logo_size_slider(self, qr_page):
         """Logo size slider should update displayed value."""
-        design_tab = qr_page.locator('.tab[data-tab="design"]')
-        design_tab.click()
+        qr_page.locator("#brandingDetails summary").click()
         qr_page.locator("#logoEnabled").check()
 
         slider = qr_page.locator("#logoSize")
@@ -136,14 +131,8 @@ class TestDesignOptions:
         textarea = qr_page.locator("#qrText")
         textarea.fill("Color test")
 
-        design_tab = qr_page.locator('.tab[data-tab="design"]')
-        design_tab.click()
-
         fg_color = qr_page.locator("#fgColor")
         fg_color.fill("#ff0000")
-
-        text_tab = qr_page.locator('.tab[data-tab="text"]')
-        text_tab.click()
 
         generate_btn = qr_page.locator("#generateBtn")
         generate_btn.click()
@@ -152,15 +141,13 @@ class TestDesignOptions:
         expect(canvas).to_be_visible()
 
     def test_style_controls_present(self, qr_page):
-        """Extended QR style controls should be available in design tab."""
-        design_tab = qr_page.locator('.tab[data-tab="design"]')
-        design_tab.click()
-
+        """Extended QR style controls should be available on the one-pager."""
         expect(qr_page.locator("#qrStyle")).to_be_visible()
         expect(qr_page.locator("#finderStyle")).to_be_visible()
-        expect(qr_page.locator("#useBadge")).to_be_visible()
         expect(qr_page.locator("#logoOptions")).to_be_hidden()
 
+        qr_page.locator("#brandingDetails summary").click()
+        expect(qr_page.locator("#useBadge")).to_be_visible()
         qr_page.locator("#logoEnabled").check()
 
         expect(qr_page.locator("#logoOptions")).to_be_visible()
@@ -168,7 +155,6 @@ class TestDesignOptions:
     def test_dot_style_generation(self, qr_page):
         """Dot module and circle finder styles should still generate a QR canvas."""
         qr_page.locator("#qrText").fill("Styled QR")
-        qr_page.locator('.tab[data-tab="design"]').click()
 
         qr_page.locator("#qrStyle").select_option("dots")
         qr_page.locator("#finderStyle").select_option("circle")
@@ -179,10 +165,29 @@ class TestDesignOptions:
 
     def test_orchid_theme_is_fixed(self, qr_page):
         """UI theme should stay fixed to Orchid."""
-        qr_page.locator('.tab[data-tab="design"]').click()
-
         expect(qr_page.locator("#appTheme")).to_have_count(0)
         expect(qr_page.locator("body")).to_have_attribute("data-theme", "orchid")
+
+    @pytest.mark.parametrize(
+        "tab,field,value",
+        [
+            ("text", "#plainText", "Plain text QR"),
+            ("email", "#emailTo", "mail@example.com"),
+            ("phone", "#phoneNumber", "+436600000000"),
+            ("sms", "#smsPhone", "+436600000000"),
+            ("vcard", "#vcardFirst", "Max"),
+            ("paypal", "#paypalHandle", "vargamedia"),
+            ("more", "#customPayload", "geo:48.2082,16.3738"),
+        ],
+    )
+    def test_content_modes_generate_qr(self, qr_page, tab, field, value):
+        """Additional content modes should generate a QR canvas."""
+        qr_page.locator(f'.tab[data-tab="{tab}"]').click()
+        qr_page.locator(field).fill(value)
+        qr_page.locator("#generateBtn").click()
+
+        canvas = qr_page.locator("#qrcode canvas")
+        expect(canvas).to_be_visible()
 
 
 class TestDownloadFormats:
@@ -206,47 +211,44 @@ class TestAdvancedSettings:
     """Tests for advanced settings (ECC level, output size)."""
 
     def open_advanced(self, qr_page):
-        qr_page.locator(".advanced-options summary").click()
+        return
 
     def test_ecc_level_options(self, qr_page):
         """ECC level dropdown should have all options."""
-        self.open_advanced(qr_page)
         ecc_select = qr_page.locator("#eccLevel")
         options = ecc_select.locator("option")
         expect(options).to_have_count(4)
 
     def test_ecc_default_value(self, qr_page):
         """Default ECC level should be H (Sehr Hoch)."""
-        self.open_advanced(qr_page)
         ecc_select = qr_page.locator("#eccLevel")
         expect(ecc_select).to_have_value("H")
 
-    def test_pixel_size_options(self, qr_page):
-        """Pixel size dropdown should have all options."""
-        self.open_advanced(qr_page)
+    def test_pixel_size_slider_range(self, qr_page):
+        """Pixel size slider should expose expected range."""
         size_select = qr_page.locator("#pixelSize")
-        options = size_select.locator("option")
-        expect(options).to_have_count(4)
+        expect(size_select).to_have_attribute("min", "256")
+        expect(size_select).to_have_attribute("max", "1024")
 
     def test_pixel_size_default_value(self, qr_page):
-        """Default pixel size should be 400."""
-        self.open_advanced(qr_page)
+        """Default pixel size should be 512."""
         size_select = qr_page.locator("#pixelSize")
-        expect(size_select).to_have_value("400")
+        expect(size_select).to_have_value("512")
 
     def test_change_ecc_level(self, qr_page):
         """Should be able to change ECC level."""
-        self.open_advanced(qr_page)
         ecc_select = qr_page.locator("#eccLevel")
         ecc_select.select_option("L")
         expect(ecc_select).to_have_value("L")
 
     def test_change_output_size(self, qr_page):
         """Should be able to change output size."""
-        self.open_advanced(qr_page)
         size_select = qr_page.locator("#pixelSize")
-        size_select.select_option("800")
-        expect(size_select).to_have_value("800")
+        value_display = qr_page.locator("#pixelSizeVal")
+        size_select.fill("768")
+        size_select.dispatch_event("input")
+        expect(value_display).to_have_text("768 px")
+        expect(size_select).to_have_value("768")
 
 
 class TestQRCodeRegeneration:

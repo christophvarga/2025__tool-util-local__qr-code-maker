@@ -11,9 +11,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="icon" href="data:,">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=1.3.2">
+    <link rel="stylesheet" href="styles.css?v=1.4.0">
 </head>
 
 <body data-theme="orchid">
@@ -23,147 +23,295 @@
         </div>
     </noscript>
 
-    <main class="app-shell">
-        <section class="panel controls-panel" aria-label="QR-Code Einstellungen">
-            <header class="brand-header">
+    <div class="page-frame">
+        <header class="topbar">
+            <div class="brand-header">
                 <div class="brand-mark" aria-hidden="true">
                     <span></span><span></span><span></span><span></span>
                 </div>
                 <div>
-                    <h1>QR-Code Generator</h1>
-                    <p class="subtitle">Erstelle individuelle QR-Codes</p>
+                    <h1>QR Code Generator</h1>
+                    <p class="subtitle">Erstelle individuelle QR-Codes in Sekunden.</p>
                 </div>
-            </header>
-
-            <div id="errorMessage" class="error-message" role="alert" aria-live="assertive" hidden></div>
-
-            <div class="tabs" role="tablist" aria-label="QR-Code Typ">
-                <button class="tab active" type="button" data-tab="text" role="tab" id="tab-text"
-                    aria-selected="true" aria-controls="textTab" tabindex="0">
-                    <span class="tab-glyph" aria-hidden="true">URL</span>
-                    Text/URL
-                </button>
-                <button class="tab" type="button" data-tab="wifi" role="tab" id="tab-wifi"
-                    aria-selected="false" aria-controls="wifiTab" tabindex="-1">
-                    <span class="tab-glyph" aria-hidden="true">Wi</span>
-                    WLAN
-                </button>
-                <button class="tab" type="button" data-tab="design" role="tab" id="tab-design"
-                    aria-selected="false" aria-controls="designTab" tabindex="-1">
-                    <span class="tab-glyph" aria-hidden="true">FX</span>
-                    Design
-                </button>
             </div>
+            <div class="top-actions">
+                <button id="resetBtn" class="icon-btn" type="button" title="Zuruecksetzen" aria-label="Zuruecksetzen">Undo</button>
+                <button id="historyToggle" class="secondary-btn" type="button">Export-Historie</button>
+            </div>
+        </header>
 
-            <div class="tab-body">
-                <div id="textTab" class="tab-content active" role="tabpanel" aria-labelledby="tab-text">
-                    <div class="section-label">Inhalt</div>
-                    <div class="input-group">
-                        <label for="qrText">Text oder URL eingeben</label>
-                        <div class="textarea-shell">
-                            <textarea id="qrText" placeholder="z. B. https://beispiel.de oder beliebiger Text..."
-                                maxlength="4296"></textarea>
-                            <div class="character-count"><span id="charCount">0</span> / 4296</div>
+        <main class="app-shell">
+            <section class="panel controls-panel" aria-label="QR-Code Einstellungen">
+                <div id="errorMessage" class="error-message" role="alert" aria-live="assertive" hidden></div>
+
+                <div class="tabs content-tabs" role="tablist" aria-label="QR-Code Typ">
+                    <button class="tab active" type="button" data-tab="link" role="tab" id="tab-link"
+                        aria-selected="true" aria-controls="linkTab" tabindex="0">
+                        <span class="tab-glyph" aria-hidden="true">URL</span>
+                        Link
+                    </button>
+                    <button class="tab" type="button" data-tab="wifi" role="tab" id="tab-wifi"
+                        aria-selected="false" aria-controls="wifiTab" tabindex="-1">
+                        <span class="tab-glyph" aria-hidden="true">Wi</span>
+                        WLAN
+                    </button>
+                    <button class="tab" type="button" data-tab="text" role="tab" id="tab-text"
+                        aria-selected="false" aria-controls="textTab" tabindex="-1">
+                        <span class="tab-glyph" aria-hidden="true">TXT</span>
+                        Text
+                    </button>
+                    <button class="tab" type="button" data-tab="email" role="tab" id="tab-email"
+                        aria-selected="false" aria-controls="emailTab" tabindex="-1">
+                        <span class="tab-glyph" aria-hidden="true">@</span>
+                        E-Mail
+                    </button>
+                    <button class="tab" type="button" data-tab="phone" role="tab" id="tab-phone"
+                        aria-selected="false" aria-controls="phoneTab" tabindex="-1">
+                        <span class="tab-glyph" aria-hidden="true">Tel</span>
+                        Telefon
+                    </button>
+                    <button class="tab" type="button" data-tab="sms" role="tab" id="tab-sms"
+                        aria-selected="false" aria-controls="smsTab" tabindex="-1">
+                        <span class="tab-glyph" aria-hidden="true">SMS</span>
+                        SMS
+                    </button>
+                    <button class="tab" type="button" data-tab="vcard" role="tab" id="tab-vcard"
+                        aria-selected="false" aria-controls="vcardTab" tabindex="-1">
+                        <span class="tab-glyph" aria-hidden="true">VC</span>
+                        vCard
+                    </button>
+                    <button class="tab" type="button" data-tab="paypal" role="tab" id="tab-paypal"
+                        aria-selected="false" aria-controls="paypalTab" tabindex="-1">
+                        <span class="tab-glyph" aria-hidden="true">PP</span>
+                        PayPal
+                    </button>
+                    <button class="tab" type="button" data-tab="more" role="tab" id="tab-more"
+                        aria-selected="false" aria-controls="moreTab" tabindex="-1">
+                        <span class="tab-glyph" aria-hidden="true">...</span>
+                        Mehr
+                    </button>
+                </div>
+
+                <div class="content-card input-card">
+                    <div id="linkTab" class="tab-content active" role="tabpanel" aria-labelledby="tab-link">
+                        <label for="qrText">URL</label>
+                        <div class="field-with-action">
+                            <input type="text" id="qrText" placeholder="https://portfolio-twin.com" maxlength="4296"
+                                autocomplete="url">
+                            <button class="clear-field" type="button" data-clear="qrText" aria-label="URL leeren">x</button>
                         </div>
+                        <div class="character-count"><span id="charCount">0</span> / 4296</div>
+                    </div>
+
+                    <div id="wifiTab" class="tab-content" role="tabpanel" aria-labelledby="tab-wifi">
+                        <div class="input-grid">
+                            <div class="input-group wide">
+                                <label for="wifiSsid">Netzwerkname (SSID)</label>
+                                <input type="text" id="wifiSsid" placeholder="Mein-WLAN" maxlength="32">
+                            </div>
+                            <div class="input-group">
+                                <label for="wifiPassword">Passwort</label>
+                                <input type="password" id="wifiPassword" placeholder="Passwort" maxlength="63">
+                            </div>
+                            <div class="input-group">
+                                <label for="wifiSecurity">Verschluesselung</label>
+                                <select id="wifiSecurity">
+                                    <option value="WPA">WPA/WPA2</option>
+                                    <option value="WEP">WEP</option>
+                                    <option value="nopass">Keine</option>
+                                </select>
+                            </div>
+                        </div>
+                        <label class="toggle-row" for="wifiHidden">
+                            <input type="checkbox" id="wifiHidden">
+                            <span>Verstecktes Netzwerk</span>
+                        </label>
+                    </div>
+
+                    <div id="textTab" class="tab-content" role="tabpanel" aria-labelledby="tab-text">
+                        <label for="plainText">Text</label>
+                        <textarea id="plainText" placeholder="Freier Text, Notizen oder kurze Informationen..."
+                            maxlength="4296"></textarea>
+                    </div>
+
+                    <div id="emailTab" class="tab-content" role="tabpanel" aria-labelledby="tab-email">
+                        <div class="input-grid">
+                            <div class="input-group wide">
+                                <label for="emailTo">Empfaenger</label>
+                                <input type="email" id="emailTo" placeholder="name@example.com">
+                            </div>
+                            <div class="input-group wide">
+                                <label for="emailSubject">Betreff</label>
+                                <input type="text" id="emailSubject" placeholder="Betreff">
+                            </div>
+                            <div class="input-group wide">
+                                <label for="emailBody">Nachricht</label>
+                                <textarea id="emailBody" placeholder="Nachrichtentext"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="phoneTab" class="tab-content" role="tabpanel" aria-labelledby="tab-phone">
+                        <label for="phoneNumber">Telefonnummer</label>
+                        <input type="tel" id="phoneNumber" placeholder="+43 660 0000000">
+                    </div>
+
+                    <div id="smsTab" class="tab-content" role="tabpanel" aria-labelledby="tab-sms">
+                        <div class="input-grid">
+                            <div class="input-group wide">
+                                <label for="smsPhone">Telefonnummer</label>
+                                <input type="tel" id="smsPhone" placeholder="+43 660 0000000">
+                            </div>
+                            <div class="input-group wide">
+                                <label for="smsMessage">SMS Text</label>
+                                <textarea id="smsMessage" placeholder="Kurze Nachricht"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="vcardTab" class="tab-content" role="tabpanel" aria-labelledby="tab-vcard">
+                        <div class="input-grid">
+                            <div class="input-group">
+                                <label for="vcardFirst">Vorname</label>
+                                <input type="text" id="vcardFirst" placeholder="Max">
+                            </div>
+                            <div class="input-group">
+                                <label for="vcardLast">Nachname</label>
+                                <input type="text" id="vcardLast" placeholder="Mustermann">
+                            </div>
+                            <div class="input-group">
+                                <label for="vcardOrg">Organisation</label>
+                                <input type="text" id="vcardOrg" placeholder="Firma">
+                            </div>
+                            <div class="input-group">
+                                <label for="vcardPhone">Telefon</label>
+                                <input type="tel" id="vcardPhone" placeholder="+43 660 0000000">
+                            </div>
+                            <div class="input-group">
+                                <label for="vcardEmail">E-Mail</label>
+                                <input type="email" id="vcardEmail" placeholder="name@example.com">
+                            </div>
+                            <div class="input-group">
+                                <label for="vcardUrl">Website</label>
+                                <input type="url" id="vcardUrl" placeholder="https://example.com">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="paypalTab" class="tab-content" role="tabpanel" aria-labelledby="tab-paypal">
+                        <div class="input-grid">
+                            <div class="input-group">
+                                <label for="paypalHandle">PayPal.me Name</label>
+                                <input type="text" id="paypalHandle" placeholder="username">
+                            </div>
+                            <div class="input-group">
+                                <label for="paypalAmount">Betrag optional</label>
+                                <input type="text" id="paypalAmount" inputmode="decimal" placeholder="25.00">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="moreTab" class="tab-content" role="tabpanel" aria-labelledby="tab-more">
+                        <label for="customPayload">Eigener QR-Inhalt</label>
+                        <textarea id="customPayload" placeholder="mailto:, geo:, calendar text, crypto address, etc."
+                            maxlength="4296"></textarea>
                     </div>
                 </div>
 
-                <div id="wifiTab" class="tab-content" role="tabpanel" aria-labelledby="tab-wifi">
-                    <div class="section-label">WLAN</div>
-                    <div class="input-group">
-                        <label for="wifiSsid">Netzwerkname (SSID)</label>
-                        <input type="text" id="wifiSsid" placeholder="Mein-WLAN" maxlength="32">
-                    </div>
-                    <div class="input-grid">
-                        <div class="input-group">
-                            <label for="wifiPassword">Passwort</label>
-                            <input type="password" id="wifiPassword" placeholder="Passwort" maxlength="63">
-                        </div>
-                        <div class="input-group">
-                            <label for="wifiSecurity">Verschluesselung</label>
-                            <select id="wifiSecurity">
-                                <option value="WPA">WPA/WPA2</option>
-                                <option value="WEP">WEP</option>
-                                <option value="nopass">Keine (Offen)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <label class="toggle-row" for="wifiHidden">
-                        <input type="checkbox" id="wifiHidden">
-                        <span>Verstecktes Netzwerk</span>
-                    </label>
-                </div>
+                <button id="generateBtn" type="button">QR-Code Generieren</button>
 
-                <div id="designTab" class="tab-content" role="tabpanel" aria-labelledby="tab-design">
-                    <div class="section-label">Design</div>
-
-                    <div class="input-grid">
-                        <div class="input-group">
-                            <label for="qrStyle">QR-Code Style</label>
-                            <select id="qrStyle">
+                <section class="section-block" aria-labelledby="designHeading">
+                    <h2 id="designHeading">Design</h2>
+                    <div class="settings-table">
+                        <div class="settings-row">
+                            <div>
+                                <strong>QR-Stil</strong>
+                                <span>Waehle das Erscheinungsbild des QR-Codes.</span>
+                            </div>
+                            <select id="qrStyle" class="native-value" aria-label="QR-Stil">
                                 <option value="square">Klassisch</option>
                                 <option value="rounded" selected>Abgerundet</option>
                                 <option value="dots">Punkte</option>
-                                <option value="classy">Classy</option>
+                                <option value="classy">Soft</option>
                             </select>
+                            <div class="choice-group" aria-label="QR-Stil">
+                                <button class="choice-btn" type="button" data-control="qrStyle" data-value="square" title="Klassisch">SQ</button>
+                                <button class="choice-btn active" type="button" data-control="qrStyle" data-value="rounded" title="Abgerundet">RD</button>
+                                <button class="choice-btn" type="button" data-control="qrStyle" data-value="dots" title="Punkte">DT</button>
+                                <button class="choice-btn" type="button" data-control="qrStyle" data-value="classy" title="Soft">SF</button>
+                            </div>
                         </div>
-                        <div class="input-group">
-                            <label for="finderStyle">Ecken Style</label>
-                            <select id="finderStyle">
+
+                        <div class="settings-row">
+                            <div>
+                                <strong>Augen-Stil</strong>
+                                <span>Passe die Ecken der Positionserkennungsmarker an.</span>
+                            </div>
+                            <select id="finderStyle" class="native-value" aria-label="Augen-Stil">
                                 <option value="square">Klassisch</option>
                                 <option value="rounded" selected>Abgerundet</option>
                                 <option value="circle">Kreise</option>
                             </select>
+                            <div class="choice-group" aria-label="Augen-Stil">
+                                <button class="choice-btn" type="button" data-control="finderStyle" data-value="square" title="Klassisch">SQ</button>
+                                <button class="choice-btn active" type="button" data-control="finderStyle" data-value="rounded" title="Abgerundet">RD</button>
+                                <button class="choice-btn" type="button" data-control="finderStyle" data-value="circle" title="Kreise">CR</button>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="input-group">
-                        <label>Farb-Presets</label>
-                        <div class="preset-grid" aria-label="Farb-Presets">
-                            <button class="preset-btn active" type="button" data-preset="neon">Neon</button>
-                            <button class="preset-btn" type="button" data-preset="ocean">Ocean</button>
-                            <button class="preset-btn" type="button" data-preset="forest">Forest</button>
-                            <button class="preset-btn" type="button" data-preset="mono">Mono</button>
+                        <div class="settings-row color-row">
+                            <div>
+                                <strong>Farbe</strong>
+                                <span>Waehle Vordergrund, Hintergrund und Verlauf.</span>
+                            </div>
+                            <div class="swatch-row">
+                                <label class="swatch-field" title="Vordergrund">
+                                    <input type="color" id="fgColor" value="#6c5ce7">
+                                    <span>#6C5CE7</span>
+                                </label>
+                                <label class="swatch-field" title="Hintergrund">
+                                    <input type="color" id="bgColor" value="#ffffff">
+                                    <span>#FFFFFF</span>
+                                </label>
+                                <label class="swatch-field" title="Verlauf">
+                                    <input type="color" id="gradientColor" value="#9a8cff">
+                                    <span>#9A8CFF</span>
+                                </label>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="input-group">
-                        <label>Farben anpassen</label>
-                        <div class="swatch-row">
-                            <label class="swatch-field" title="Vordergrund">
-                                <span class="color-label">Vordergrund</span>
-                                <input type="color" id="fgColor" value="#172033">
-                            </label>
-                            <label class="swatch-field" title="Hintergrund">
-                                <span class="color-label">Hintergrund</span>
-                                <input type="color" id="bgColor" value="#ffffff">
-                            </label>
-                            <label class="swatch-field" title="Verlauf-Farbe">
-                                <span class="color-label">Verlauf</span>
-                                <input type="color" id="gradientColor" value="#6f52ff" disabled>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="settings-card compact-card">
-                        <label class="toggle-row" for="useGradient">
-                            <input type="checkbox" id="useGradient">
-                            <span>Farbverlauf aktivieren</span>
-                        </label>
-                        <label class="toggle-row" for="transparentBackground">
-                            <input type="checkbox" id="transparentBackground">
-                            <span>Transparenter Hintergrund</span>
-                        </label>
-                        <div class="input-group inline-control">
-                            <label for="gradientType">Verlauf</label>
-                            <select id="gradientType">
-                                <option value="linear" selected>Linear</option>
-                                <option value="radial">Radial</option>
+                        <div class="settings-row">
+                            <div>
+                                <strong>Fehlerkorrektur</strong>
+                                <span>Bestimmt, wie viel Daten wiederhergestellt werden koennen.</span>
+                            </div>
+                            <select id="eccLevel">
+                                <option value="L">Niedrig (7%)</option>
+                                <option value="M">Mittel (15%)</option>
+                                <option value="Q">Hoch (25%)</option>
+                                <option value="H" selected>Hoch (30%)</option>
                             </select>
                         </div>
-                    </div>
 
-                    <div class="settings-card">
+                        <div class="settings-row">
+                            <div>
+                                <strong>Groesse</strong>
+                                <span>Pixelgroesse des QR-Codes.</span>
+                            </div>
+                            <div class="range-line">
+                                <input type="range" id="pixelSize" min="256" max="1024" step="128" value="512">
+                                <output id="pixelSizeVal" for="pixelSize">512 px</output>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <details class="accordion-card" id="brandingDetails">
+                    <summary>
+                        <span>Branding <em>PRO</em></span>
+                        <span aria-hidden="true">+</span>
+                    </summary>
+                    <div class="accordion-body">
                         <label class="toggle-row" for="useBadge">
                             <input type="checkbox" id="useBadge" checked>
                             <span>Mitte-Badge anzeigen</span>
@@ -171,7 +319,7 @@
                         <div id="badgeOptions" class="input-grid badge-options">
                             <div class="input-group">
                                 <label for="badgeText">Badge Text</label>
-                                <input type="text" id="badgeText" value="URL" maxlength="6">
+                                <input type="text" id="badgeText" value="LINK" maxlength="6">
                             </div>
                         </div>
                         <label class="toggle-row" for="logoEnabled">
@@ -186,105 +334,104 @@
                             <div id="logoName" class="logo-name-display">Kein Logo ausgewaehlt</div>
                             <div class="input-group">
                                 <label for="logoSize">Logo Groesse: <span id="logoSizeVal">20%</span></label>
-                                <div class="range-wrapper">
-                                    <input type="range" id="logoSize" min="8" max="30" value="20">
-                                </div>
+                                <input type="range" id="logoSize" min="8" max="30" value="20">
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                </details>
 
-            <details class="advanced-options">
-                <summary>
-                    <span>Erweiterte Einstellungen</span>
-                    <span aria-hidden="true">+</span>
-                </summary>
-                <div class="options-row">
-                    <div class="input-group option-small">
-                        <label for="eccLevel">Fehlerkorrektur</label>
-                        <select id="eccLevel">
-                            <option value="L">Niedrig (7%)</option>
-                            <option value="M">Mittel (15%)</option>
-                            <option value="Q">Hoch (25%)</option>
-                            <option value="H" selected>Sehr Hoch (30%)</option>
-                        </select>
+                <details class="accordion-card" id="optionsDetails">
+                    <summary>
+                        <span>Optionen</span>
+                        <span aria-hidden="true">+</span>
+                    </summary>
+                    <div class="accordion-body">
+                        <div class="options-row">
+                            <label class="toggle-row" for="useGradient">
+                                <input type="checkbox" id="useGradient" checked>
+                                <span>Farbverlauf aktivieren</span>
+                            </label>
+                            <label class="toggle-row" for="transparentBackground">
+                                <input type="checkbox" id="transparentBackground">
+                                <span>Transparenter Hintergrund</span>
+                            </label>
+                            <div class="input-group">
+                                <label for="gradientType">Verlauf</label>
+                                <select id="gradientType">
+                                    <option value="linear" selected>Linear</option>
+                                    <option value="radial">Radial</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="quietZone">Rand</label>
+                                <select id="quietZone">
+                                    <option value="2">Kompakt</option>
+                                    <option value="4" selected>Standard</option>
+                                    <option value="6">Gross</option>
+                                </select>
+                            </div>
+                            <div class="input-group wide">
+                                <label for="moduleScale">Modul-Fuellung: <span id="moduleScaleVal">92%</span></label>
+                                <input type="range" id="moduleScale" min="65" max="100" value="92">
+                            </div>
+                        </div>
                     </div>
-                    <div class="input-group option-small">
-                        <label for="pixelSize">Ausgabegroesse</label>
-                        <select id="pixelSize">
-                            <option value="256">256 px</option>
-                            <option value="400" selected>400 px</option>
-                            <option value="800">800 px</option>
-                            <option value="1024">1024 px</option>
-                        </select>
+                </details>
+
+                <footer class="privacy-note">
+                    <span aria-hidden="true">OK</span>
+                    <p>Deine Daten werden nicht gespeichert<br>100% lokal im Browser</p>
+                </footer>
+            </section>
+
+            <section class="panel preview-panel" aria-label="QR-Code Vorschau">
+                <div class="preview-actions">
+                    <button id="previewResetBtn" class="icon-btn" type="button" title="Zuruecksetzen" aria-label="Zuruecksetzen">Undo</button>
+                    <button id="quickResetBtn" class="secondary-btn" type="button">Zuruecksetzen</button>
+                </div>
+
+                <div class="preview-stack">
+                    <div id="qrcode" aria-label="QR-Code Ausgabebereich">
+                        <div class="empty-state">QR-Code wird hier angezeigt</div>
                     </div>
-                    <div class="input-group option-small">
-                        <label for="quietZone">Rand</label>
-                        <select id="quietZone">
-                            <option value="2">Kompakt</option>
-                            <option value="4" selected>Standard</option>
-                            <option value="6">Gross</option>
-                        </select>
-                    </div>
-                    <div class="input-group option-small">
-                        <label for="moduleScale">Modul-Fuellung: <span id="moduleScaleVal">92%</span></label>
-                        <div class="range-wrapper">
-                            <input type="range" id="moduleScale" min="65" max="100" value="92">
+
+                    <div class="status-card" id="statusCard">
+                        <div class="status-dot" aria-hidden="true">OK</div>
+                        <div>
+                            <strong id="statusText">Warte auf Inhalt</strong>
+                            <p id="statusSubtext">Generiere einen QR-Code fuer die Download-Optionen.</p>
                         </div>
                     </div>
                 </div>
-            </details>
 
-            <button id="generateBtn" type="button">QR-Code Generieren</button>
-
-            <footer class="privacy-note">
-                <span aria-hidden="true">OK</span>
-                <p>Deine Daten werden nicht gespeichert<br>100% lokal im Browser</p>
-            </footer>
-        </section>
-
-        <section class="panel preview-panel" aria-label="QR-Code Vorschau">
-            <div class="preview-stack">
-                <div class="section-label">Vorschau</div>
-                <div id="qrcode" aria-label="QR-Code Ausgabebereich">
-                    <div class="empty-state">QR-Code wird hier angezeigt</div>
-                </div>
-
-                <div class="status-card" id="statusCard">
-                    <div class="status-dot" aria-hidden="true">OK</div>
-                    <div>
-                        <strong id="statusText">Warte auf Inhalt</strong>
-                        <p id="statusSubtext">Generiere einen QR-Code fuer die Download-Optionen.</p>
+                <div class="download-panel">
+                    <div class="section-label">Herunterladen</div>
+                    <div class="format-grid" aria-label="Downloadformat">
+                        <button class="format-btn active" type="button" data-format="png">PNG</button>
+                        <button class="format-btn" type="button" data-format="svg">SVG</button>
+                        <button class="format-btn" type="button" data-format="pdf">PDF</button>
+                        <button class="format-btn" type="button" data-format="eps">EPS</button>
                     </div>
+                    <button id="downloadBtn" type="button" hidden>Herunterladen (PNG)</button>
+                    <button id="shareBtn" class="ghost-btn" type="button" hidden>Teilen</button>
+                    <p id="formatHint" class="format-hint">PNG ist ideal fuer digitale Anwendungen.</p>
                 </div>
-            </div>
 
-            <div class="download-panel">
-                <div class="section-label">Download</div>
-                <div class="format-grid" aria-label="Downloadformat">
-                    <button class="format-btn active" type="button" data-format="png">PNG</button>
-                    <button class="format-btn" type="button" data-format="svg">SVG</button>
-                    <button class="format-btn" type="button" data-format="pdf">PDF</button>
-                    <button class="format-btn" type="button" data-format="eps">EPS</button>
-                </div>
-                <div class="buttons">
-                    <button id="downloadBtn" type="button" hidden>Herunterladen</button>
-                    <button id="shareBtn" type="button" hidden>Teilen</button>
-                </div>
-            </div>
-
-            <aside class="tip-card">
-                <strong>Tipp</strong>
-                <p>Teste den QR-Code nach dem Download mit einer Kamera-App.</p>
-            </aside>
-        </section>
-    </main>
+                <aside id="historyDrawer" class="history-drawer" hidden>
+                    <div class="history-head">
+                        <strong>Export-Historie</strong>
+                        <button id="clearHistoryBtn" type="button">Leeren</button>
+                    </div>
+                    <ul id="historyList"></ul>
+                </aside>
+            </section>
+        </main>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
         integrity="sha384-lQXOAyZwHXE55JFyrOMB7nY2Wv+m5ZWNtJcHrd1rceRQXAYNLak8ukN5TjBTcIwz"
         crossorigin="anonymous"></script>
-    <script src="script.js?v=1.3.2"></script>
+    <script src="script.js?v=1.4.0"></script>
 </body>
 
 </html>

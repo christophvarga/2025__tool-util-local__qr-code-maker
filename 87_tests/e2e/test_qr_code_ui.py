@@ -3,7 +3,7 @@ E2E UI Tests for QR Code Maker Application - Core UI.
 
 Tests cover:
 - Page loading and initial state
-- Tab navigation (Text/URL, WLAN, Design)
+- Content type navigation
 - Text/URL QR code generation
 - Accessibility (ARIA attributes, keyboard navigation)
 """
@@ -24,23 +24,23 @@ class TestPageLoad:
         """Main heading should be visible."""
         heading = qr_page.locator("h1")
         expect(heading).to_be_visible()
-        expect(heading).to_have_text("QR-Code Generator")
+        expect(heading).to_have_text("QR Code Generator")
 
     def test_subtitle_visible(self, qr_page):
         """Subtitle should be visible."""
         subtitle = qr_page.locator(".subtitle")
         expect(subtitle).to_be_visible()
-        expect(subtitle).to_have_text("Erstelle individuelle QR-Codes")
+        expect(subtitle).to_have_text("Erstelle individuelle QR-Codes in Sekunden.")
 
     def test_tabs_present(self, qr_page):
-        """All three tabs should be present."""
+        """All content type tabs should be present."""
         tabs = qr_page.locator(".tab")
-        expect(tabs).to_have_count(3)
+        expect(tabs).to_have_count(9)
 
-    def test_text_tab_active_by_default(self, qr_page):
-        """Text/URL tab should be active by default."""
-        text_tab = qr_page.locator('.tab[data-tab="text"]')
-        expect(text_tab).to_have_class(re.compile(r"active"))
+    def test_link_tab_active_by_default(self, qr_page):
+        """Link tab should be active by default."""
+        link_tab = qr_page.locator('.tab[data-tab="link"]')
+        expect(link_tab).to_have_class(re.compile(r"active"))
 
     def test_generate_button_visible(self, qr_page):
         """Generate button should be visible."""
@@ -65,7 +65,7 @@ class TestPageLoad:
 
 
 class TestTabNavigation:
-    """Tests for tab switching functionality."""
+    """Tests for content type switching functionality."""
 
     def test_switch_to_wifi_tab(self, qr_page):
         """Clicking WLAN tab should show WLAN form."""
@@ -76,31 +76,31 @@ class TestTabNavigation:
         wifi_content = qr_page.locator("#wifiTab")
         expect(wifi_content).to_have_class(re.compile(r"active"))
 
-    def test_switch_to_design_tab(self, qr_page):
-        """Clicking Design tab should show design options."""
-        design_tab = qr_page.locator('.tab[data-tab="design"]')
-        design_tab.click()
+    def test_switch_to_email_tab(self, qr_page):
+        """Clicking E-Mail tab should show E-Mail form."""
+        email_tab = qr_page.locator('.tab[data-tab="email"]')
+        email_tab.click()
 
-        expect(design_tab).to_have_class(re.compile(r"active"))
-        design_content = qr_page.locator("#designTab")
-        expect(design_content).to_have_class(re.compile(r"active"))
+        expect(email_tab).to_have_class(re.compile(r"active"))
+        email_content = qr_page.locator("#emailTab")
+        expect(email_content).to_have_class(re.compile(r"active"))
 
-    def test_switch_back_to_text_tab(self, qr_page):
-        """Switching away and back to text tab should work."""
+    def test_switch_back_to_link_tab(self, qr_page):
+        """Switching away and back to link tab should work."""
         wifi_tab = qr_page.locator('.tab[data-tab="wifi"]')
-        text_tab = qr_page.locator('.tab[data-tab="text"]')
+        link_tab = qr_page.locator('.tab[data-tab="link"]')
 
         wifi_tab.click()
-        text_tab.click()
+        link_tab.click()
 
-        expect(text_tab).to_have_class(re.compile(r"active"))
-        text_content = qr_page.locator("#textTab")
-        expect(text_content).to_have_class(re.compile(r"active"))
+        expect(link_tab).to_have_class(re.compile(r"active"))
+        link_content = qr_page.locator("#linkTab")
+        expect(link_content).to_have_class(re.compile(r"active"))
 
     def test_only_one_tab_active(self, qr_page):
         """Only one tab should be active at a time."""
-        design_tab = qr_page.locator('.tab[data-tab="design"]')
-        design_tab.click()
+        email_tab = qr_page.locator('.tab[data-tab="email"]')
+        email_tab.click()
 
         active_tabs = qr_page.locator(".tab.active")
         expect(active_tabs).to_have_count(1)
@@ -117,12 +117,12 @@ class TestAccessibility:
     def test_tab_roles(self, qr_page):
         """Each tab should have role='tab'."""
         tabs = qr_page.locator('[role="tab"]')
-        expect(tabs).to_have_count(3)
+        expect(tabs).to_have_count(9)
 
     def test_tabpanel_roles(self, qr_page):
         """Each tab content should have role='tabpanel'."""
         panels = qr_page.locator('[role="tabpanel"]')
-        expect(panels).to_have_count(3)
+        expect(panels).to_have_count(9)
 
     def test_aria_selected_on_active_tab(self, qr_page):
         """Active tab should have aria-selected='true'."""
@@ -132,22 +132,22 @@ class TestAccessibility:
     def test_aria_selected_updates_on_switch(self, qr_page):
         """aria-selected should update when switching tabs."""
         wifi_tab = qr_page.locator('.tab[data-tab="wifi"]')
-        text_tab = qr_page.locator('.tab[data-tab="text"]')
+        link_tab = qr_page.locator('.tab[data-tab="link"]')
 
         wifi_tab.click()
 
         expect(wifi_tab).to_have_attribute('aria-selected', 'true')
-        expect(text_tab).to_have_attribute('aria-selected', 'false')
+        expect(link_tab).to_have_attribute('aria-selected', 'false')
 
     def test_aria_controls_present(self, qr_page):
         """Tabs should have aria-controls linking to panels."""
-        text_tab = qr_page.locator('#tab-text')
-        expect(text_tab).to_have_attribute('aria-controls', 'textTab')
+        link_tab = qr_page.locator('#tab-link')
+        expect(link_tab).to_have_attribute('aria-controls', 'linkTab')
 
     def test_keyboard_arrow_right_navigation(self, qr_page):
         """ArrowRight should move to next tab."""
-        text_tab = qr_page.locator('.tab[data-tab="text"]')
-        text_tab.focus()
+        link_tab = qr_page.locator('.tab[data-tab="link"]')
+        link_tab.focus()
         qr_page.keyboard.press("ArrowRight")
 
         wifi_tab = qr_page.locator('.tab[data-tab="wifi"]')
@@ -155,12 +155,12 @@ class TestAccessibility:
 
     def test_keyboard_arrow_left_wraps(self, qr_page):
         """ArrowLeft from first tab should wrap to last."""
-        text_tab = qr_page.locator('.tab[data-tab="text"]')
-        text_tab.focus()
+        link_tab = qr_page.locator('.tab[data-tab="link"]')
+        link_tab.focus()
         qr_page.keyboard.press("ArrowLeft")
 
-        design_tab = qr_page.locator('.tab[data-tab="design"]')
-        expect(design_tab).to_have_attribute('aria-selected', 'true')
+        more_tab = qr_page.locator('.tab[data-tab="more"]')
+        expect(more_tab).to_have_attribute('aria-selected', 'true')
 
     def test_error_message_has_alert_role(self, qr_page):
         """Error message container should have role='alert'."""
@@ -204,13 +204,13 @@ class TestTextURLQRCode:
         expect(canvas).to_be_visible()
 
     def test_empty_text_shows_inline_error(self, qr_page):
-        """Empty text input should show inline error message."""
+        """Empty link input should show inline error message."""
         generate_btn = qr_page.locator("#generateBtn")
         generate_btn.click()
 
         error = qr_page.locator("#errorMessage")
         expect(error).to_be_visible()
-        expect(error).to_contain_text("Text oder URL")
+        expect(error).to_contain_text("URL")
 
     def test_download_button_appears_after_generation(self, qr_page):
         """Download button should appear after QR code generation."""

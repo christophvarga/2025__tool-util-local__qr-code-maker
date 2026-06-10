@@ -140,10 +140,10 @@ class TestErrorHandling:
 
         expect(error).to_be_hidden()
 
-    def test_design_tab_no_input_shows_error(self, qr_page):
-        """Design tab generate with no prior input should show error."""
-        design_tab = qr_page.locator('.tab[data-tab="design"]')
-        design_tab.click()
+    def test_more_tab_no_input_shows_error(self, qr_page):
+        """Custom content mode with no input should show error."""
+        more_tab = qr_page.locator('.tab[data-tab="more"]')
+        more_tab.click()
 
         qr_page.locator("#generateBtn").click()
 

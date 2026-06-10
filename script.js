@@ -1,15 +1,39 @@
 // DOM Elements
 const qrText = document.getElementById('qrText');
+const plainText = document.getElementById('plainText');
 const generateBtn = document.getElementById('generateBtn');
 const downloadBtn = document.getElementById('downloadBtn');
 const shareBtn = document.getElementById('shareBtn');
 const qrcodeDiv = document.getElementById('qrcode');
+const resetBtn = document.getElementById('resetBtn');
+const previewResetBtn = document.getElementById('previewResetBtn');
+const quickResetBtn = document.getElementById('quickResetBtn');
+const historyToggle = document.getElementById('historyToggle');
+const historyDrawer = document.getElementById('historyDrawer');
+const historyList = document.getElementById('historyList');
+const clearHistoryBtn = document.getElementById('clearHistoryBtn');
 const wifiSsid = document.getElementById('wifiSsid');
 const wifiPassword = document.getElementById('wifiPassword');
 const wifiSecurity = document.getElementById('wifiSecurity');
 const wifiHidden = document.getElementById('wifiHidden');
+const emailTo = document.getElementById('emailTo');
+const emailSubject = document.getElementById('emailSubject');
+const emailBody = document.getElementById('emailBody');
+const phoneNumber = document.getElementById('phoneNumber');
+const smsPhone = document.getElementById('smsPhone');
+const smsMessage = document.getElementById('smsMessage');
+const vcardFirst = document.getElementById('vcardFirst');
+const vcardLast = document.getElementById('vcardLast');
+const vcardOrg = document.getElementById('vcardOrg');
+const vcardPhone = document.getElementById('vcardPhone');
+const vcardEmail = document.getElementById('vcardEmail');
+const vcardUrl = document.getElementById('vcardUrl');
+const paypalHandle = document.getElementById('paypalHandle');
+const paypalAmount = document.getElementById('paypalAmount');
+const customPayload = document.getElementById('customPayload');
 const eccLevel = document.getElementById('eccLevel');
 const pixelSize = document.getElementById('pixelSize');
+const pixelSizeVal = document.getElementById('pixelSizeVal');
 const quietZone = document.getElementById('quietZone');
 const moduleScale = document.getElementById('moduleScale');
 const moduleScaleVal = document.getElementById('moduleScaleVal');
@@ -17,6 +41,7 @@ const errorMessage = document.getElementById('errorMessage');
 const charCount = document.getElementById('charCount');
 const statusText = document.getElementById('statusText');
 const statusSubtext = document.getElementById('statusSubtext');
+const formatHint = document.getElementById('formatHint');
 
 // Design Controls
 const fgColor = document.getElementById('fgColor');
@@ -41,15 +66,35 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_IMAGE_DIMENSION = 4096; // px
 const MAX_QR_TEXT_LENGTH = 4296;
 const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+const HISTORY_KEY = 'qr-maker-export-history';
 
 const COLOR_PRESETS = {
-    neon: { fg: '#172033', bg: '#ffffff', gradient: '#6f52ff', gradientOn: true },
+    neon: { fg: '#6c5ce7', bg: '#ffffff', gradient: '#9a8cff', gradientOn: true },
     ocean: { fg: '#102235', bg: '#f7fbff', gradient: '#00a7c8', gradientOn: true },
     forest: { fg: '#18352a', bg: '#fbfff8', gradient: '#75a843', gradientOn: true },
     mono: { fg: '#111827', bg: '#ffffff', gradient: '#111827', gradientOn: false }
 };
 
-let currentTab = 'text';
+const FORMAT_HINTS = {
+    png: 'PNG ist ideal fuer digitale Anwendungen.',
+    svg: 'SVG ist ideal fuer skalierbare Web- und Drucklayouts.',
+    pdf: 'PDF ist ideal fuer Weitergabe und Dokumente.',
+    eps: 'EPS ist ideal fuer Vektor-Workflows.'
+};
+
+const TYPE_LABELS = {
+    link: 'Link',
+    wifi: 'WLAN',
+    text: 'Text',
+    email: 'E-Mail',
+    phone: 'Telefon',
+    sms: 'SMS',
+    vcard: 'vCard',
+    paypal: 'PayPal',
+    more: 'Custom'
+};
+
+let currentTab = 'link';
 let uploadedLogo = null;
 let selectedFormat = 'png';
 let lastPayload = '';
@@ -92,6 +137,18 @@ function escapeWifiField(value) {
         .replace(/;/g, '\\;')
         .replace(/:/g, '\\:')
         .replace(/"/g, '\\"');
+}
+
+function escapeVCardField(value) {
+    return value
+        .replace(/\\/g, '\\\\')
+        .replace(/\n/g, '\\n')
+        .replace(/;/g, '\\;')
+        .replace(/,/g, '\\,');
+}
+
+function normalizePaypalHandle(value) {
+    return value.trim().replace(/^@/, '').replace(/^https?:\/\/(www\.)?paypal\.me\//i, '').split('/')[0];
 }
 
 function escapeXml(value) {
@@ -183,15 +240,25 @@ function activateTab(tab) {
     tab.setAttribute('tabindex', '0');
     currentTab = tab.dataset.tab;
     document.getElementById(`${currentTab}Tab`).classList.add('active');
+    badgeText.value = TYPE_LABELS[currentTab].slice(0, 6).toUpperCase();
     clearError();
 }
 
 // --- QR Code Input Extraction ---
 
-function getTextInput() {
+function getLinkInput() {
     const text = sanitizeInput(qrText.value.trim());
     if (!text) {
-        showError('Bitte gib einen Text oder URL ein!');
+        showError('Bitte gib eine URL oder einen Text ein!');
+        return null;
+    }
+    return text;
+}
+
+function getTextInput() {
+    const text = sanitizeInput(plainText.value.trim());
+    if (!text) {
+        showError('Bitte gib einen Text ein!');
         return null;
     }
     return text;
@@ -213,22 +280,89 @@ function getWifiInput() {
     return `WIFI:T:${security};S:${escapedSsid};P:${escapedPassword};H:${hidden};;`;
 }
 
-function getDesignTabInput() {
-    const text = qrText.value.trim();
-    if (text) {
-        return sanitizeInput(text);
+function getEmailInput() {
+    const to = emailTo.value.trim();
+    if (!to) {
+        showError('Bitte gib eine E-Mail-Adresse ein!');
+        return null;
     }
-    if (wifiSsid.value.trim()) {
-        return getWifiInput();
+    const subject = encodeURIComponent(emailSubject.value.trim());
+    const body = encodeURIComponent(emailBody.value.trim());
+    const query = [
+        subject ? `subject=${subject}` : '',
+        body ? `body=${body}` : ''
+    ].filter(Boolean).join('&');
+    return `mailto:${encodeURIComponent(to)}${query ? `?${query}` : ''}`;
+}
+
+function getPhoneInput() {
+    const phone = phoneNumber.value.trim();
+    if (!phone) {
+        showError('Bitte gib eine Telefonnummer ein!');
+        return null;
     }
-    showError('Bitte gib zuerst Text oder WLAN-Daten ein!');
-    return null;
+    return `tel:${phone.replace(/\s+/g, '')}`;
+}
+
+function getSmsInput() {
+    const phone = smsPhone.value.trim();
+    if (!phone) {
+        showError('Bitte gib eine Telefonnummer fuer SMS ein!');
+        return null;
+    }
+    return `SMSTO:${phone.replace(/\s+/g, '')}:${smsMessage.value.trim()}`;
+}
+
+function getVCardInput() {
+    const first = vcardFirst.value.trim();
+    const last = vcardLast.value.trim();
+    const fullName = [first, last].filter(Boolean).join(' ');
+    if (!fullName && !vcardPhone.value.trim() && !vcardEmail.value.trim()) {
+        showError('Bitte gib mindestens Name, Telefon oder E-Mail fuer die vCard ein!');
+        return null;
+    }
+    return [
+        'BEGIN:VCARD',
+        'VERSION:3.0',
+        `N:${escapeVCardField(last)};${escapeVCardField(first)};;;`,
+        `FN:${escapeVCardField(fullName || vcardOrg.value.trim() || vcardEmail.value.trim())}`,
+        vcardOrg.value.trim() ? `ORG:${escapeVCardField(vcardOrg.value.trim())}` : '',
+        vcardPhone.value.trim() ? `TEL:${escapeVCardField(vcardPhone.value.trim())}` : '',
+        vcardEmail.value.trim() ? `EMAIL:${escapeVCardField(vcardEmail.value.trim())}` : '',
+        vcardUrl.value.trim() ? `URL:${escapeVCardField(vcardUrl.value.trim())}` : '',
+        'END:VCARD'
+    ].filter(Boolean).join('\n');
+}
+
+function getPaypalInput() {
+    const handle = normalizePaypalHandle(paypalHandle.value);
+    if (!handle) {
+        showError('Bitte gib einen PayPal.me Namen ein!');
+        return null;
+    }
+    const amount = paypalAmount.value.trim().replace(',', '.');
+    return `https://paypal.me/${encodeURIComponent(handle)}${amount ? `/${encodeURIComponent(amount)}` : ''}`;
+}
+
+function getCustomInput() {
+    const text = sanitizeInput(customPayload.value.trim());
+    if (!text) {
+        showError('Bitte gib einen eigenen QR-Inhalt ein!');
+        return null;
+    }
+    return text;
 }
 
 function getInputText() {
+    if (currentTab === 'link') return getLinkInput();
     if (currentTab === 'text') return getTextInput();
     if (currentTab === 'wifi') return getWifiInput();
-    if (currentTab === 'design') return getDesignTabInput();
+    if (currentTab === 'email') return getEmailInput();
+    if (currentTab === 'phone') return getPhoneInput();
+    if (currentTab === 'sms') return getSmsInput();
+    if (currentTab === 'vcard') return getVCardInput();
+    if (currentTab === 'paypal') return getPaypalInput();
+    if (currentTab === 'more') return getCustomInput();
     return null;
 }
 
@@ -684,7 +818,7 @@ function setGeneratedState(canvas, qr, payload, options) {
     lastQr = qr;
     lastPayload = payload;
     lastOptions = options;
-    setStatus('Bereit zum Download', 'Scanne den Code, um ihn zu testen.', true);
+    setStatus('Scannbar', 'Dein QR-Code ist bereit zum Scannen.', true);
 }
 
 function generateQRCode() {
@@ -729,6 +863,28 @@ function updateLogoState() {
     logoSize.disabled = !enabled;
 }
 
+function updatePixelSizeState() {
+    pixelSizeVal.textContent = `${pixelSize.value} px`;
+}
+
+function updateColorLabels() {
+    document.querySelectorAll('.swatch-field').forEach(field => {
+        const input = field.querySelector('input[type="color"]');
+        const label = field.querySelector('span');
+        if (input && label) label.textContent = input.value.toUpperCase();
+    });
+}
+
+function setChoice(controlId, value) {
+    const control = document.getElementById(controlId);
+    if (!control) return;
+    control.value = value;
+    document.querySelectorAll(`.choice-btn[data-control="${controlId}"]`).forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.value === value);
+    });
+    scheduleRegenerate();
+}
+
 function applyPreset(name) {
     const preset = COLOR_PRESETS[name];
     if (!preset) return;
@@ -750,6 +906,91 @@ function setSelectedFormat(format) {
     document.querySelectorAll('.format-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.format === format);
     });
+    downloadBtn.textContent = `Herunterladen (${format.toUpperCase()})`;
+    formatHint.textContent = FORMAT_HINTS[format] || FORMAT_HINTS.png;
+}
+
+function getHistory() {
+    try {
+        return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    } catch (err) {
+        return [];
+    }
+}
+
+function saveHistory(items) {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, 8)));
+}
+
+function renderHistory() {
+    const items = getHistory();
+    historyList.innerHTML = '';
+    if (!items.length) {
+        const item = document.createElement('li');
+        item.textContent = 'Noch keine Exporte.';
+        historyList.appendChild(item);
+        return;
+    }
+    items.forEach(entry => {
+        const item = document.createElement('li');
+        const left = document.createElement('span');
+        const right = document.createElement('span');
+        left.textContent = `${entry.type} - ${entry.format.toUpperCase()}`;
+        right.textContent = entry.time;
+        item.append(left, right);
+        historyList.appendChild(item);
+    });
+}
+
+function recordExport(format) {
+    const now = new Date();
+    const items = getHistory();
+    items.unshift({
+        type: TYPE_LABELS[currentTab] || 'QR',
+        format,
+        time: now.toLocaleString('de-AT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+    });
+    saveHistory(items);
+    renderHistory();
+}
+
+function resetApp() {
+    lastPayload = '';
+    lastQr = null;
+    lastOptions = null;
+    currentCanvas = null;
+    [
+        qrText, plainText, wifiSsid, wifiPassword, emailTo, emailSubject, emailBody,
+        phoneNumber, smsPhone, smsMessage, vcardFirst, vcardLast, vcardOrg, vcardPhone,
+        vcardEmail, vcardUrl, paypalHandle, paypalAmount, customPayload
+    ].forEach(control => { control.value = ''; });
+    wifiSecurity.value = 'WPA';
+    wifiHidden.checked = false;
+    eccLevel.value = 'H';
+    pixelSize.value = '512';
+    quietZone.value = '4';
+    moduleScale.value = '92';
+    logoSize.value = '20';
+    logoSizeVal.textContent = '20%';
+    logoEnabled.checked = false;
+    useBadge.checked = true;
+    badgeText.value = 'LINK';
+    uploadedLogo = null;
+    logoInput.value = '';
+    logoName.textContent = 'Kein Logo ausgewaehlt';
+    applyPreset('neon');
+    setChoice('qrStyle', 'rounded');
+    setChoice('finderStyle', 'rounded');
+    setSelectedFormat('png');
+    updateCharacterCount();
+    updatePixelSizeState();
+    updateLogoState();
+    updateColorLabels();
+    qrcodeDiv.innerHTML = '<div class="empty-state">QR-Code wird hier angezeigt</div>';
+    downloadBtn.hidden = true;
+    shareBtn.hidden = true;
+    clearError();
+    setStatus('Warte auf Inhalt', 'Generiere einen QR-Code fuer die Download-Optionen.', false);
 }
 
 initTabs();
@@ -757,6 +998,10 @@ document.body.dataset.theme = 'orchid';
 updateCharacterCount();
 updateGradientState();
 updateLogoState();
+updatePixelSizeState();
+updateColorLabels();
+setSelectedFormat('png');
+renderHistory();
 setStatus('Warte auf Inhalt', 'Generiere einen QR-Code fuer die Download-Optionen.', false);
 
 generateBtn.addEventListener('click', generateQRCode);
@@ -766,11 +1011,64 @@ qrText.addEventListener('input', () => {
     scheduleRegenerate();
 });
 
-qrText.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        generateQRCode();
-    }
+[qrText, phoneNumber, paypalHandle, customPayload].forEach(control => {
+    control.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            generateQRCode();
+        }
+    });
+});
+
+[
+    plainText,
+    emailTo,
+    emailSubject,
+    emailBody,
+    phoneNumber,
+    smsPhone,
+    smsMessage,
+    vcardFirst,
+    vcardLast,
+    vcardOrg,
+    vcardPhone,
+    vcardEmail,
+    vcardUrl,
+    paypalHandle,
+    paypalAmount,
+    customPayload
+].forEach(control => {
+    control.addEventListener('input', scheduleRegenerate);
+    control.addEventListener('change', scheduleRegenerate);
+});
+
+document.querySelectorAll('.clear-field').forEach(button => {
+    button.addEventListener('click', () => {
+        const target = document.getElementById(button.dataset.clear);
+        if (!target) return;
+        target.value = '';
+        updateCharacterCount();
+        target.focus();
+        scheduleRegenerate();
+    });
+});
+
+document.querySelectorAll('.choice-btn').forEach(button => {
+    button.addEventListener('click', () => setChoice(button.dataset.control, button.dataset.value));
+});
+
+resetBtn.addEventListener('click', resetApp);
+previewResetBtn.addEventListener('click', resetApp);
+quickResetBtn.addEventListener('click', resetApp);
+
+historyToggle.addEventListener('click', () => {
+    historyDrawer.hidden = !historyDrawer.hidden;
+    renderHistory();
+});
+
+clearHistoryBtn.addEventListener('click', () => {
+    saveHistory([]);
+    renderHistory();
 });
 
 [wifiSsid, wifiPassword, wifiSecurity, wifiHidden].forEach(control => {
@@ -799,6 +1097,11 @@ qrText.addEventListener('keypress', (e) => {
     control.addEventListener('change', scheduleRegenerate);
 });
 
+[fgColor, bgColor, gradientColor].forEach(control => {
+    control.addEventListener('input', updateColorLabels);
+    control.addEventListener('change', updateColorLabels);
+});
+
 useGradient.addEventListener('change', () => {
     updateGradientState();
     scheduleRegenerate();
@@ -816,6 +1119,9 @@ logoSize.addEventListener('input', (e) => {
 moduleScale.addEventListener('input', (e) => {
     moduleScaleVal.textContent = `${e.target.value}%`;
 });
+
+pixelSize.addEventListener('input', updatePixelSizeState);
+pixelSize.addEventListener('change', updatePixelSizeState);
 
 document.querySelectorAll('.preset-btn').forEach(button => {
     button.addEventListener('click', () => applyPreset(button.dataset.preset));
@@ -910,22 +1216,26 @@ downloadBtn.addEventListener('click', async () => {
         if (selectedFormat === 'svg') {
             const svg = buildSvg(lastQr, lastOptions);
             downloadBlob(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }), `qrcode-${timestamp}.svg`);
+            recordExport('svg');
             return;
         }
 
         if (selectedFormat === 'pdf') {
             downloadBlob(buildPdfBlob(currentCanvas), `qrcode-${timestamp}.pdf`);
+            recordExport('pdf');
             return;
         }
 
         if (selectedFormat === 'eps') {
             const eps = buildEps(lastQr, lastOptions);
             downloadBlob(new Blob([eps], { type: 'application/postscript' }), `qrcode-${timestamp}.eps`);
+            recordExport('eps');
             return;
         }
 
         const blob = await canvasToBlob(currentCanvas, 'image/png');
         downloadBlob(blob, `qrcode-${timestamp}.png`);
+        recordExport('png');
     } catch (err) {
         showError('Fehler beim Download. Bitte versuche es erneut.');
     }
