@@ -1,6 +1,22 @@
 # Changes - QR Code Maker
 
 
+## [2026-06-11 00:36] Session 20260611-003611
+
+### Commits
+1a7eba0 fix(ci): deploy-trigger auf local-backend Agent umstellen (image bash statt alpine)
+6dfcbc3 feat(ui): SOTA-Redesign v2.0.0 - Live-Preview, 3-Ebenen-UX, Stil-Presets, Scan-Check
+
+### Staged Changes
+- Keine staged Changes
+
+### Unstaged Changes
+00_infos/llm-context.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+---
+
+
 ## [2026-06-11] UX/UI-Redesign v2.0.0 (SOTA-Konzept umgesetzt)
 
 ### Aenderungen

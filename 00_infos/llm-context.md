@@ -1,6 +1,6 @@
 # QR Code Maker - LLM Context
 
-> Version: 2.0.0
+> Version: 2.0.1
 > Stand: 11.06.2026
 > Status: **FEATURE-COMPLETE**
 

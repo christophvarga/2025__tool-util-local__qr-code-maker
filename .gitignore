@@ -34,3 +34,12 @@ Thumbs.db
 test_*.png
 fix_verified_*.png
 wlan_qr_*.png
+
+# Deploy-Worktree (Execution-Isolation-Contract T3, off-tree git sync)
+.deploy-worktrees/
+
+# Session-Locks (Claude Code)
+.claude-repo.lock
+00_infos/.llm-context.md.lock
+90_reports/.changes.md.lock
+00_infos/runtime/session-context-records/
