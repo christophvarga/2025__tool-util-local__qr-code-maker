@@ -2,14 +2,13 @@
 E2E UI Tests for QR Code Maker Application - Core UI.
 
 Tests cover:
-- Page loading and initial state
-- Content type navigation
-- Text/URL QR code generation
+- Page loading and initial state (live preview, ghost QR)
+- Content type navigation (chips + 'Mehr' menu)
+- Live QR code generation for Text/URL
 - Accessibility (ARIA attributes, keyboard navigation)
 """
 
 import re
-import pytest
 from playwright.sync_api import expect
 
 
@@ -32,26 +31,41 @@ class TestPageLoad:
         expect(subtitle).to_be_visible()
         expect(subtitle).to_have_text("Erstelle individuelle QR-Codes in Sekunden.")
 
-    def test_tabs_present(self, qr_page):
-        """All content type tabs should be present."""
+    def test_type_tabs_present(self, qr_page):
+        """All 9 content types should exist (3 chips + 6 menu items)."""
         tabs = qr_page.locator(".tab")
         expect(tabs).to_have_count(9)
+
+    def test_primary_chips_visible(self, qr_page):
+        """Primary type chips (Link, WLAN, Text) and Mehr button should be visible."""
+        for tab in ("link", "wifi", "text"):
+            expect(qr_page.locator(f'.tab[data-tab="{tab}"]')).to_be_visible()
+        expect(qr_page.locator("#moreTypesBtn")).to_be_visible()
 
     def test_link_tab_active_by_default(self, qr_page):
         """Link tab should be active by default."""
         link_tab = qr_page.locator('.tab[data-tab="link"]')
         expect(link_tab).to_have_class(re.compile(r"active"))
 
-    def test_generate_button_visible(self, qr_page):
-        """Generate button should be visible."""
-        button = qr_page.locator("#generateBtn")
-        expect(button).to_be_visible()
-        expect(button).to_have_text("QR-Code Generieren")
+    def test_no_generate_button(self, qr_page):
+        """Live preview: there should be no generate button anymore."""
+        expect(qr_page.locator("#generateBtn")).to_have_count(0)
 
-    def test_download_button_hidden_initially(self, qr_page):
-        """Download button should be hidden before QR code generation."""
+    def test_download_button_disabled_initially(self, qr_page):
+        """Download button should be visible but disabled before any content."""
         button = qr_page.locator("#downloadBtn")
-        expect(button).not_to_be_visible()
+        expect(button).to_be_visible()
+        expect(button).to_be_disabled()
+
+    def test_ghost_preview_shown_initially(self, qr_page):
+        """An example ghost QR should be rendered while waiting for content."""
+        ghost = qr_page.locator("#qrcode canvas.ghost")
+        expect(ghost).to_be_visible()
+
+    def test_status_idle_initially(self, qr_page):
+        """Status card should show idle state initially."""
+        expect(qr_page.locator("#statusCard")).to_have_attribute("data-state", "idle")
+        expect(qr_page.locator("#statusText")).to_have_text("Warte auf Inhalt")
 
     def test_error_message_hidden_initially(self, qr_page):
         """Error message should be hidden on page load."""
@@ -63,12 +77,25 @@ class TestPageLoad:
         noscript = qr_page.locator(".noscript-warning")
         expect(noscript).to_have_count(0)
 
+    def test_section_titles_present(self, qr_page):
+        """The three always-visible sections should be labelled."""
+        titles = qr_page.locator(".section-title")
+        expect(titles).to_have_count(3)
+        expect(titles.nth(0)).to_have_text("Inhalt")
+        expect(titles.nth(1)).to_have_text("Stil")
+        expect(titles.nth(2)).to_have_text("Farbe")
 
-class TestTabNavigation:
-    """Tests for content type switching functionality."""
+    def test_accordions_collapsed_by_default(self, qr_page):
+        """Branding and Erweitert accordions should be collapsed."""
+        assert qr_page.locator("#brandingDetails").get_attribute("open") is None
+        assert qr_page.locator("#advancedDetails").get_attribute("open") is None
+
+
+class TestTypeNavigation:
+    """Tests for content type switching (chips + menu)."""
 
     def test_switch_to_wifi_tab(self, qr_page):
-        """Clicking WLAN tab should show WLAN form."""
+        """Clicking WLAN chip should show WLAN form."""
         wifi_tab = qr_page.locator('.tab[data-tab="wifi"]')
         wifi_tab.click()
 
@@ -76,46 +103,55 @@ class TestTabNavigation:
         wifi_content = qr_page.locator("#wifiTab")
         expect(wifi_content).to_have_class(re.compile(r"active"))
 
-    def test_switch_to_email_tab(self, qr_page):
-        """Clicking E-Mail tab should show E-Mail form."""
-        email_tab = qr_page.locator('.tab[data-tab="email"]')
-        email_tab.click()
+    def test_switch_to_email_via_menu(self, qr_page, select_type):
+        """Selecting E-Mail from the Mehr menu should show the E-Mail form."""
+        select_type("email")
 
-        expect(email_tab).to_have_class(re.compile(r"active"))
         email_content = qr_page.locator("#emailTab")
         expect(email_content).to_have_class(re.compile(r"active"))
 
+    def test_more_chip_shows_selected_secondary_type(self, qr_page, select_type):
+        """The Mehr chip should adopt the label of the selected secondary type."""
+        expect(qr_page.locator("#moreTypesLabel")).to_have_text("Mehr")
+        select_type("email")
+        expect(qr_page.locator("#moreTypesLabel")).to_have_text("E-Mail")
+
+        qr_page.locator('.tab[data-tab="link"]').click()
+        expect(qr_page.locator("#moreTypesLabel")).to_have_text("Mehr")
+
     def test_switch_back_to_link_tab(self, qr_page):
         """Switching away and back to link tab should work."""
-        wifi_tab = qr_page.locator('.tab[data-tab="wifi"]')
+        qr_page.locator('.tab[data-tab="wifi"]').click()
         link_tab = qr_page.locator('.tab[data-tab="link"]')
-
-        wifi_tab.click()
         link_tab.click()
 
         expect(link_tab).to_have_class(re.compile(r"active"))
         link_content = qr_page.locator("#linkTab")
         expect(link_content).to_have_class(re.compile(r"active"))
 
-    def test_only_one_tab_active(self, qr_page):
+    def test_only_one_tab_active(self, qr_page, select_type):
         """Only one tab should be active at a time."""
-        email_tab = qr_page.locator('.tab[data-tab="email"]')
-        email_tab.click()
+        select_type("email")
 
         active_tabs = qr_page.locator(".tab.active")
         expect(active_tabs).to_have_count(1)
+
+    def test_menu_closes_after_selection(self, qr_page, select_type):
+        """The Mehr menu should close after picking a type."""
+        select_type("vcard")
+        expect(qr_page.locator("#moreTypesMenu")).to_be_hidden()
 
 
 class TestAccessibility:
     """Tests for ARIA attributes and keyboard navigation."""
 
     def test_tablist_role(self, qr_page):
-        """Tab container should have role='tablist'."""
+        """Type row should have role='tablist'."""
         tablist = qr_page.locator('[role="tablist"]')
         expect(tablist).to_have_count(1)
 
     def test_tab_roles(self, qr_page):
-        """Each tab should have role='tab'."""
+        """Each type button should have role='tab'."""
         tabs = qr_page.locator('[role="tab"]')
         expect(tabs).to_have_count(9)
 
@@ -144,6 +180,13 @@ class TestAccessibility:
         link_tab = qr_page.locator('#tab-link')
         expect(link_tab).to_have_attribute('aria-controls', 'linkTab')
 
+    def test_more_menu_aria_expanded(self, qr_page):
+        """Mehr button should toggle aria-expanded."""
+        more_btn = qr_page.locator("#moreTypesBtn")
+        expect(more_btn).to_have_attribute("aria-expanded", "false")
+        more_btn.click()
+        expect(more_btn).to_have_attribute("aria-expanded", "true")
+
     def test_keyboard_arrow_right_navigation(self, qr_page):
         """ArrowRight should move to next tab."""
         link_tab = qr_page.locator('.tab[data-tab="link"]')
@@ -154,7 +197,7 @@ class TestAccessibility:
         expect(wifi_tab).to_have_attribute('aria-selected', 'true')
 
     def test_keyboard_arrow_left_wraps(self, qr_page):
-        """ArrowLeft from first tab should wrap to last."""
+        """ArrowLeft from first tab should wrap to last type (Eigener Inhalt)."""
         link_tab = qr_page.locator('.tab[data-tab="link"]')
         link_tab.focus()
         qr_page.keyboard.press("ArrowLeft")
@@ -169,79 +212,58 @@ class TestAccessibility:
 
     def test_canvas_has_aria_label(self, qr_page):
         """Generated canvas should have aria-label."""
-        textarea = qr_page.locator("#qrText")
-        textarea.fill("Accessibility test")
-        qr_page.locator("#generateBtn").click()
+        qr_page.locator("#qrText").fill("Accessibility test")
 
-        canvas = qr_page.locator("#qrcode canvas")
+        canvas = qr_page.locator("#qrcode canvas:not(.ghost)")
         expect(canvas).to_have_attribute('aria-label', 'Generierter QR-Code')
         expect(canvas).to_have_attribute('role', 'img')
 
 
-class TestTextURLQRCode:
-    """Tests for Text/URL QR code generation."""
+class TestLiveGeneration:
+    """Tests for live (debounced) QR code generation."""
 
     def test_generate_url_qr_code(self, qr_page):
-        """Should generate QR code for URL."""
-        textarea = qr_page.locator("#qrText")
-        textarea.fill("https://example.com")
+        """Typing a URL should render a QR code without any button click."""
+        qr_page.locator("#qrText").fill("https://example.com")
 
-        generate_btn = qr_page.locator("#generateBtn")
-        generate_btn.click()
-
-        canvas = qr_page.locator("#qrcode canvas")
+        canvas = qr_page.locator("#qrcode canvas:not(.ghost)")
         expect(canvas).to_be_visible()
 
     def test_generate_text_qr_code(self, qr_page):
-        """Should generate QR code for plain text."""
-        textarea = qr_page.locator("#qrText")
-        textarea.fill("Hello World!")
+        """Typing plain text should render a QR code."""
+        qr_page.locator("#qrText").fill("Hello World!")
 
-        generate_btn = qr_page.locator("#generateBtn")
-        generate_btn.click()
-
-        canvas = qr_page.locator("#qrcode canvas")
+        canvas = qr_page.locator("#qrcode canvas:not(.ghost)")
         expect(canvas).to_be_visible()
 
-    def test_empty_text_shows_inline_error(self, qr_page):
-        """Empty link input should show inline error message."""
-        generate_btn = qr_page.locator("#generateBtn")
-        generate_btn.click()
-
-        error = qr_page.locator("#errorMessage")
-        expect(error).to_be_visible()
-        expect(error).to_contain_text("URL")
-
-    def test_download_button_appears_after_generation(self, qr_page):
-        """Download button should appear after QR code generation."""
-        textarea = qr_page.locator("#qrText")
-        textarea.fill("Test content")
-
-        generate_btn = qr_page.locator("#generateBtn")
-        generate_btn.click()
+    def test_download_enables_after_input(self, qr_page):
+        """Download button should become enabled once content exists."""
+        qr_page.locator("#qrText").fill("Test content")
 
         download_btn = qr_page.locator("#downloadBtn")
-        expect(download_btn).to_be_visible()
+        expect(download_btn).to_be_enabled()
 
-    def test_enter_key_generates_qr(self, qr_page):
-        """Pressing Enter in textarea should generate QR code."""
-        textarea = qr_page.locator("#qrText")
-        textarea.fill("Enter key test")
-        textarea.press("Enter")
+    def test_status_ok_after_input(self, qr_page):
+        """Status card should switch to scannable state."""
+        qr_page.locator("#qrText").fill("https://example.com")
 
-        canvas = qr_page.locator("#qrcode canvas")
-        expect(canvas).to_be_visible()
+        expect(qr_page.locator("#statusCard")).to_have_attribute("data-state", "ok")
+        expect(qr_page.locator("#statusText")).to_have_text("Gut scanbar")
 
-    def test_error_clears_on_successful_generation(self, qr_page):
-        """Error should clear when QR code is successfully generated."""
-        generate_btn = qr_page.locator("#generateBtn")
-        generate_btn.click()
+    def test_clearing_input_disables_download(self, qr_page):
+        """Clearing the input should return to idle state."""
+        qr_page.locator("#qrText").fill("https://example.com")
+        expect(qr_page.locator("#downloadBtn")).to_be_enabled()
 
-        error = qr_page.locator("#errorMessage")
-        expect(error).to_be_visible()
+        qr_page.locator("#qrText").fill("")
 
-        textarea = qr_page.locator("#qrText")
-        textarea.fill("Valid text")
-        generate_btn.click()
+        expect(qr_page.locator("#downloadBtn")).to_be_disabled()
+        expect(qr_page.locator("#statusCard")).to_have_attribute("data-state", "idle")
 
-        expect(error).to_be_hidden()
+    def test_clear_field_button(self, qr_page):
+        """The field clear button should empty the URL field."""
+        qr_page.locator("#qrText").fill("https://example.com")
+        qr_page.locator('.clear-field[data-clear="qrText"]').click()
+
+        expect(qr_page.locator("#qrText")).to_have_value("")
+        expect(qr_page.locator("#downloadBtn")).to_be_disabled()

@@ -1,7 +1,7 @@
 # QR Code Maker - LLM Context
 
-> Version: 1.3.0
-> Stand: 09.06.2026
+> Version: 2.0.0
+> Stand: 11.06.2026
 > Status: **FEATURE-COMPLETE**
 
 ## Ziel & Scope
@@ -16,8 +16,17 @@ Lokales und live verfuegbares QR-Code-Generator-Tool als standalone Web-App. Lae
 |---------|--------|
 | Text/URL QR-Codes | Fertig |
 | WLAN QR-Codes (SSID, Passwort, Verschluesselung) | Fertig |
-| Error Correction Levels (L/M/Q/H) | Fertig |
-| Output-Groessen (256/400/800/1024px) | Fertig |
+| Error Correction Levels (Auto/L/M/Q/H - Auto: M, mit Logo H) | Fertig (v2.0.0) |
+| Output-Groessen (256/512/1024/2048px, Export-Select) | Fertig (v2.0.0) |
+| Live-Preview (debounced, kein Generieren-Button mehr) | Fertig (v2.0.0) |
+| 3-Ebenen-UX: Inhalt/Stil/Farbe sichtbar - Branding/Erweitert collapsed | Fertig (v2.0.0) |
+| Typ-Chips (Link/WLAN/Text) + "Mehr"-Menue fuer 6 Sekundaertypen | Fertig (v2.0.0) |
+| Stil-Presets mit echten Mini-QR-Thumbnails | Fertig (v2.0.0) |
+| Farbmodus-Segment (Einfarbig/Verlauf/Transparent) + Paar-Swatches | Fertig (v2.0.0) |
+| Scan-Check Ampel (Kontrast, Logo-Coverage, Payload-Laenge) | Fertig (v2.0.0) |
+| Payload-Auto-Erkennung im Link-Feld (WIFI:/tel:/mailto:/vCard) | Fertig (v2.0.0) |
+| Design-Persistenz via localStorage (kein Inhalt) | Fertig (v2.0.0) |
+| Ein Reset + Undo-Toast, Cmd/Ctrl+S als Download-Shortcut | Fertig (v2.0.0) |
 | QR-Code Styles (klassisch, abgerundet, Punkte, classy) | Fertig (v1.3.0) |
 | Finder/Ecken-Styles (klassisch, abgerundet, Kreise) | Fertig (v1.3.0) |
 | UI Themes & Farb-Presets | Fertig (v1.3.0) |
@@ -39,7 +48,7 @@ Lokales und live verfuegbares QR-Code-Generator-Tool als standalone Web-App. Lae
 - **Frontend:** Vanilla JS (ES6+), HTML5, CSS3
 - **QR-Library:** qrcode-generator@1.4.4 (CDN, SRI-gesichert)
 - **Fonts:** Google Fonts - Outfit
-- **Tests:** Playwright (Python) - 65 E2E-Tests
+- **Tests:** Playwright (Python) - 94 E2E-Tests
 - **CI/CD:** Woodpecker CI (Auto-Merge) + GitHub Actions (Deploy)
 - **Container:** Nginx Alpine mit Custom-Config (Gzip, Caching, Health-Endpoint)
 
@@ -53,7 +62,7 @@ Lokales und live verfuegbares QR-Code-Generator-Tool als standalone Web-App. Lae
 ## Tests & Reports
 
 **Gruen bedeutet:**
-- Alle 47 Playwright-Tests bestanden (8 Testklassen)
+- Alle 94 Playwright-Tests bestanden (Stand v2.0.0)
 - Core-Funktionalitaet, Edge Cases, Visual Rendering, Accessibility, Security abgedeckt
 
 **Testausfuehrung:**
@@ -75,6 +84,7 @@ make test-report  # Tests mit JUnit/Coverage-Artefakten
 - `index.html`, `script.js`, `styles.css` - Hauptanwendung (Root-Level, da standalone Tool)
 - `nginx.conf` - Custom Nginx-Konfiguration (Gzip, Caching, Health-Endpoint)
 - `00_infos/` - Dokumentation und Kontext
+- `00_infos/details/ux-ui-konzept-sota.md` - UX/UI-Konzept hinter dem v2.0.0-Redesign
 - `87_tests/e2e/test_qr_code_ui.py` - Core UI Tests (PageLoad, Tabs, Accessibility, Text/URL)
 - `87_tests/e2e/test_qr_code_features.py` - Feature Tests (WLAN, Design, Settings, Regeneration)
 - `87_tests/conftest.py` - Test-Fixtures

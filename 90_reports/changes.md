@@ -1,6 +1,39 @@
 # Changes - QR Code Maker
 
 
+## [2026-06-11] UX/UI-Redesign v2.0.0 (SOTA-Konzept umgesetzt)
+
+### Aenderungen
+- **Live-Preview:** Generieren-Button entfernt, debounced Rendering (150ms) bei jeder Eingabe
+- **3-Ebenen-UX:** Inhalt/Stil/Farbe immer sichtbar; Branding + Erweitert als collapsed Accordions
+- **Typ-Auswahl:** 3 Chips (Link/WLAN/Text) + "Mehr"-Menue fuer E-Mail/Telefon/SMS/vCard/PayPal/Custom
+- **Stil-Presets:** 5 kuratierte Presets mit echten Mini-QR-Thumbnails + "Eigene"-Kachel
+- **Farb-Block konsolidiert:** Modus-Segment (Einfarbig/Verlauf/Transparent) + 6 Paar-Swatches
+- **Scan-Check:** Ampel-Status mit Kontrast- (WCAG-Luminanz), Logo-Coverage- und Payload-Warnungen
+- **ECC Auto:** Default Auto (M, bei Logo H); Export-Groessen 256-2048px als Select
+- **Polish:** Payload-Auto-Erkennung, localStorage-Design-Persistenz, ein Reset + Undo-Toast, Cmd/Ctrl+S
+- **Tests:** Suite an neue UI angepasst, 94 Playwright-E2E-Tests gruen
+- **Konzept:** `00_infos/details/ux-ui-konzept-sota.md`
+
+---
+
+
+## [2026-06-10 23:12] Session 20260610-231252
+
+### Commits
+5e953c0 chore(contract): smoke-Kommando (Fleet-Gap)
+4c1305e feat(ui): convert QR maker to compact one-pager
+
+### Staged Changes
+- Keine staged Changes
+
+### Unstaged Changes
+00_infos/llm-context.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+---
+
+
 ## [2026-02-27] Cleanup: Stale Test-PNGs entfernt (v1.2.15)
 
 ### Aenderungen

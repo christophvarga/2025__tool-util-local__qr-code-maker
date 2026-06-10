@@ -2,10 +2,10 @@
 E2E UI Tests for QR Code Maker Application - Features.
 
 Tests cover:
-- WLAN QR code generation
-- Design options (colors, gradient)
-- Advanced settings (ECC level, output size)
-- QR code regeneration scenarios
+- WLAN QR code generation (live)
+- Style presets and color modes
+- Branding (logo, badge) and advanced settings (ECC auto, export size)
+- Download formats and regeneration scenarios
 """
 
 import re
@@ -18,43 +18,33 @@ class TestWLANQRCode:
 
     def test_wifi_form_elements_present(self, qr_page):
         """WLAN form should have all necessary elements."""
-        wifi_tab = qr_page.locator('.tab[data-tab="wifi"]')
-        wifi_tab.click()
+        qr_page.locator('.tab[data-tab="wifi"]').click()
 
         expect(qr_page.locator("#wifiSsid")).to_be_visible()
         expect(qr_page.locator("#wifiPassword")).to_be_visible()
         expect(qr_page.locator("#wifiSecurity")).to_be_visible()
 
     def test_generate_wifi_qr_code(self, qr_page):
-        """Should generate QR code for WLAN credentials."""
-        wifi_tab = qr_page.locator('.tab[data-tab="wifi"]')
-        wifi_tab.click()
+        """Filling WLAN credentials should render a QR code live."""
+        qr_page.locator('.tab[data-tab="wifi"]').click()
 
         qr_page.locator("#wifiSsid").fill("TestNetwork")
         qr_page.locator("#wifiPassword").fill("TestPassword123")
 
-        generate_btn = qr_page.locator("#generateBtn")
-        generate_btn.click()
-
-        canvas = qr_page.locator("#qrcode canvas")
+        canvas = qr_page.locator("#qrcode canvas:not(.ghost)")
         expect(canvas).to_be_visible()
 
-    def test_empty_ssid_shows_inline_error(self, qr_page):
-        """Empty SSID should show inline error message."""
-        wifi_tab = qr_page.locator('.tab[data-tab="wifi"]')
-        wifi_tab.click()
+    def test_empty_ssid_shows_hint(self, qr_page):
+        """Empty SSID should show an idle hint mentioning SSID."""
+        qr_page.locator('.tab[data-tab="wifi"]').click()
 
-        generate_btn = qr_page.locator("#generateBtn")
-        generate_btn.click()
-
-        error = qr_page.locator("#errorMessage")
-        expect(error).to_be_visible()
-        expect(error).to_contain_text("SSID")
+        expect(qr_page.locator("#statusCard")).to_have_attribute("data-state", "idle")
+        expect(qr_page.locator("#statusSubtext")).to_contain_text("SSID")
+        expect(qr_page.locator("#downloadBtn")).to_be_disabled()
 
     def test_wifi_security_options(self, qr_page):
         """Security dropdown should have all options."""
-        wifi_tab = qr_page.locator('.tab[data-tab="wifi"]')
-        wifi_tab.click()
+        qr_page.locator('.tab[data-tab="wifi"]').click()
 
         security = qr_page.locator("#wifiSecurity")
         options = security.locator("option")
@@ -62,55 +52,114 @@ class TestWLANQRCode:
 
     def test_wifi_without_password(self, qr_page):
         """Should generate QR code for open network (no password)."""
-        wifi_tab = qr_page.locator('.tab[data-tab="wifi"]')
-        wifi_tab.click()
+        qr_page.locator('.tab[data-tab="wifi"]').click()
 
         qr_page.locator("#wifiSsid").fill("OpenNetwork")
         qr_page.locator("#wifiSecurity").select_option("nopass")
 
-        generate_btn = qr_page.locator("#generateBtn")
-        generate_btn.click()
-
-        canvas = qr_page.locator("#qrcode canvas")
+        canvas = qr_page.locator("#qrcode canvas:not(.ghost)")
         expect(canvas).to_be_visible()
 
     def test_wifi_special_chars_in_ssid(self, qr_page):
         """WiFi SSID with special characters should not break generation."""
-        wifi_tab = qr_page.locator('.tab[data-tab="wifi"]')
-        wifi_tab.click()
+        qr_page.locator('.tab[data-tab="wifi"]').click()
 
         qr_page.locator("#wifiSsid").fill("My;Net:work\\Test")
         qr_page.locator("#wifiPassword").fill("pass;word:123\\end")
 
-        generate_btn = qr_page.locator("#generateBtn")
-        generate_btn.click()
-
-        canvas = qr_page.locator("#qrcode canvas")
+        canvas = qr_page.locator("#qrcode canvas:not(.ghost)")
         expect(canvas).to_be_visible()
 
 
-class TestDesignOptions:
-    """Tests for design customization options."""
+class TestStylePresets:
+    """Tests for the style preset tiles."""
+
+    def test_preset_tiles_present(self, qr_page):
+        """Six preset tiles should be rendered (5 styles + Eigene)."""
+        presets = qr_page.locator(".style-preset")
+        expect(presets).to_have_count(6)
+
+    def test_orchid_preset_active_by_default(self, qr_page):
+        """Orchid preset should be the default."""
+        expect(qr_page.locator('.style-preset[data-style-preset="orchid"]')).to_have_class(
+            re.compile(r"active"))
+
+    def test_preset_applies_shapes(self, qr_page):
+        """Clicking the Dots preset should set module and finder shape."""
+        qr_page.locator('.style-preset[data-style-preset="dots"]').click()
+
+        expect(qr_page.locator("#qrStyle")).to_have_value("dots")
+        expect(qr_page.locator("#finderStyle")).to_have_value("circle")
+
+    def test_manual_shape_change_marks_custom(self, qr_page):
+        """Changing a shape under Erweitert should mark the Eigene preset."""
+        qr_page.locator("#advancedDetails summary").click()
+        qr_page.locator("#qrStyle").select_option("square")
+
+        expect(qr_page.locator('.style-preset[data-style-preset="custom"]')).to_have_class(
+            re.compile(r"active"))
+
+    def test_custom_tile_opens_advanced(self, qr_page):
+        """The Eigene tile should open the Erweitert accordion."""
+        qr_page.locator('.style-preset[data-style-preset="custom"]').click()
+        assert qr_page.locator("#advancedDetails").get_attribute("open") is not None
+
+
+class TestColorModes:
+    """Tests for the color mode segment."""
+
+    def test_gradient_mode_default(self, qr_page):
+        """Gradient mode should be active by default (Orchid preset)."""
+        expect(qr_page.locator('.mode-btn[data-color-mode="gradient"]')).to_have_class(
+            re.compile(r"active"))
+        expect(qr_page.locator("#gradientField")).to_be_visible()
+
+    def test_solid_mode_hides_gradient_picker(self, qr_page):
+        """Solid mode should hide the gradient color picker."""
+        qr_page.locator('.mode-btn[data-color-mode="solid"]').click()
+        expect(qr_page.locator("#gradientField")).to_be_hidden()
+
+    def test_transparent_mode_hides_background_picker(self, qr_page):
+        """Transparent mode should hide the background color picker."""
+        qr_page.locator('.mode-btn[data-color-mode="transparent"]').click()
+        expect(qr_page.locator("#bgField")).to_be_hidden()
 
     def test_color_pickers_present(self, qr_page):
-        """Color pickers should be present on the one-page design area."""
+        """Color pickers should be visible in the Farbe section."""
         expect(qr_page.locator("#fgColor")).to_be_visible()
         expect(qr_page.locator("#bgColor")).to_be_visible()
 
-    def test_gradient_checkbox(self, qr_page):
-        """Gradient checkbox should toggle gradient color picker."""
-        qr_page.locator("#optionsDetails summary").click()
+    def test_color_swatch_pairs_present(self, qr_page):
+        """Curated color pair swatches should be rendered."""
+        expect(qr_page.locator(".pair-swatch")).to_have_count(6)
 
-        gradient_checkbox = qr_page.locator("#useGradient")
-        gradient_color = qr_page.locator("#gradientColor")
+    def test_swatch_applies_colors(self, qr_page):
+        """Clicking a swatch should apply its colors."""
+        qr_page.locator('.pair-swatch[data-swatch="black"]').click()
+        expect(qr_page.locator("#fgColor")).to_have_value("#111827")
 
-        expect(gradient_color).to_be_enabled()
+    def test_custom_colors_applied(self, qr_page):
+        """Custom colors should still produce a QR code."""
+        qr_page.locator("#qrText").fill("Color test")
+        qr_page.locator("#fgColor").evaluate(
+            "el => { el.value = '#ff0000'; el.dispatchEvent(new Event('input', {bubbles: true})); }")
 
-        gradient_checkbox.uncheck()
-        expect(gradient_color).to_be_disabled()
+        canvas = qr_page.locator("#qrcode canvas:not(.ghost)")
+        expect(canvas).to_be_visible()
 
-        gradient_checkbox.check()
-        expect(gradient_color).to_be_enabled()
+
+class TestBranding:
+    """Tests for the Branding accordion (logo + badge)."""
+
+    def test_branding_collapsed_by_default(self, qr_page):
+        """Logo options should be hidden until Branding is opened."""
+        expect(qr_page.locator("#logoOptions")).to_be_hidden()
+
+        qr_page.locator("#brandingDetails summary").click()
+        expect(qr_page.locator("#useBadge")).to_be_visible()
+        qr_page.locator("#logoEnabled").check()
+
+        expect(qr_page.locator("#logoOptions")).to_be_visible()
 
     def test_logo_size_slider(self, qr_page):
         """Logo size slider should update displayed value."""
@@ -126,42 +175,9 @@ class TestDesignOptions:
         slider.dispatch_event("input")
         expect(value_display).to_have_text("30%")
 
-    def test_custom_colors_applied(self, qr_page):
-        """Custom colors should be applied to generated QR code."""
-        textarea = qr_page.locator("#qrText")
-        textarea.fill("Color test")
-
-        fg_color = qr_page.locator("#fgColor")
-        fg_color.fill("#ff0000")
-
-        generate_btn = qr_page.locator("#generateBtn")
-        generate_btn.click()
-
-        canvas = qr_page.locator("#qrcode canvas")
-        expect(canvas).to_be_visible()
-
-    def test_style_controls_present(self, qr_page):
-        """Extended QR style controls should be available on the one-pager."""
-        expect(qr_page.locator("#qrStyle")).to_be_visible()
-        expect(qr_page.locator("#finderStyle")).to_be_visible()
-        expect(qr_page.locator("#logoOptions")).to_be_hidden()
-
-        qr_page.locator("#brandingDetails summary").click()
-        expect(qr_page.locator("#useBadge")).to_be_visible()
-        qr_page.locator("#logoEnabled").check()
-
-        expect(qr_page.locator("#logoOptions")).to_be_visible()
-
-    def test_dot_style_generation(self, qr_page):
-        """Dot module and circle finder styles should still generate a QR canvas."""
-        qr_page.locator("#qrText").fill("Styled QR")
-
-        qr_page.locator("#qrStyle").select_option("dots")
-        qr_page.locator("#finderStyle").select_option("circle")
-        qr_page.locator("#generateBtn").click()
-
-        canvas = qr_page.locator("#qrcode canvas")
-        expect(canvas).to_be_visible()
+    def test_branding_summary_shows_state(self, qr_page):
+        """Branding summary should reflect the badge state while collapsed."""
+        expect(qr_page.locator("#brandingSummary")).to_contain_text("Badge")
 
     def test_orchid_theme_is_fixed(self, qr_page):
         """UI theme should stay fixed to Orchid."""
@@ -180,13 +196,12 @@ class TestDesignOptions:
             ("more", "#customPayload", "geo:48.2082,16.3738"),
         ],
     )
-    def test_content_modes_generate_qr(self, qr_page, tab, field, value):
-        """Additional content modes should generate a QR canvas."""
-        qr_page.locator(f'.tab[data-tab="{tab}"]').click()
+    def test_content_modes_generate_qr(self, qr_page, select_type, tab, field, value):
+        """All content modes should generate a QR canvas live."""
+        select_type(tab)
         qr_page.locator(field).fill(value)
-        qr_page.locator("#generateBtn").click()
 
-        canvas = qr_page.locator("#qrcode canvas")
+        canvas = qr_page.locator("#qrcode canvas:not(.ghost)")
         expect(canvas).to_be_visible()
 
 
@@ -196,94 +211,85 @@ class TestDownloadFormats:
     def test_svg_download_filename(self, qr_page):
         """SVG export should download an SVG file."""
         qr_page.locator("#qrText").fill("SVG export")
-        qr_page.locator("#generateBtn").click()
         qr_page.locator('.format-btn[data-format="svg"]').click()
 
+        download_btn = qr_page.locator("#downloadBtn")
+        expect(download_btn).to_be_enabled()
+
         with qr_page.expect_download() as download_info:
-            qr_page.locator("#downloadBtn").click()
+            download_btn.click()
         download = download_info.value
 
         assert re.match(r"^qrcode-\d{8}-\d{6}\.svg$", download.suggested_filename), \
             f"Expected SVG timestamp filename, got: {download.suggested_filename}"
 
+    def test_vector_format_disables_size(self, qr_page):
+        """SVG/EPS formats should disable the pixel size selector."""
+        qr_page.locator('.format-btn[data-format="svg"]').click()
+        expect(qr_page.locator("#pixelSize")).to_be_disabled()
+
+        qr_page.locator('.format-btn[data-format="png"]').click()
+        expect(qr_page.locator("#pixelSize")).to_be_enabled()
+
 
 class TestAdvancedSettings:
     """Tests for advanced settings (ECC level, output size)."""
 
-    def open_advanced(self, qr_page):
-        return
-
     def test_ecc_level_options(self, qr_page):
-        """ECC level dropdown should have all options."""
+        """ECC level dropdown should have Auto + 4 manual options."""
         ecc_select = qr_page.locator("#eccLevel")
         options = ecc_select.locator("option")
-        expect(options).to_have_count(4)
+        expect(options).to_have_count(5)
 
-    def test_ecc_default_value(self, qr_page):
-        """Default ECC level should be H (Sehr Hoch)."""
+    def test_ecc_default_is_auto(self, qr_page):
+        """Default ECC level should be Auto."""
         ecc_select = qr_page.locator("#eccLevel")
-        expect(ecc_select).to_have_value("H")
-
-    def test_pixel_size_slider_range(self, qr_page):
-        """Pixel size slider should expose expected range."""
-        size_select = qr_page.locator("#pixelSize")
-        expect(size_select).to_have_attribute("min", "256")
-        expect(size_select).to_have_attribute("max", "1024")
-
-    def test_pixel_size_default_value(self, qr_page):
-        """Default pixel size should be 512."""
-        size_select = qr_page.locator("#pixelSize")
-        expect(size_select).to_have_value("512")
+        expect(ecc_select).to_have_value("auto")
 
     def test_change_ecc_level(self, qr_page):
         """Should be able to change ECC level."""
+        qr_page.locator("#advancedDetails summary").click()
         ecc_select = qr_page.locator("#eccLevel")
         ecc_select.select_option("L")
         expect(ecc_select).to_have_value("L")
 
+    def test_pixel_size_default_value(self, qr_page):
+        """Default export size should be 512."""
+        size_select = qr_page.locator("#pixelSize")
+        expect(size_select).to_have_value("512")
+
+    def test_pixel_size_options(self, qr_page):
+        """Export size should offer 256-2048 px."""
+        options = qr_page.locator("#pixelSize option")
+        expect(options).to_have_count(4)
+
     def test_change_output_size(self, qr_page):
         """Should be able to change output size."""
         size_select = qr_page.locator("#pixelSize")
-        value_display = qr_page.locator("#pixelSizeVal")
-        size_select.fill("768")
-        size_select.dispatch_event("input")
-        expect(value_display).to_have_text("768 px")
-        expect(size_select).to_have_value("768")
+        size_select.select_option("1024")
+        expect(size_select).to_have_value("1024")
 
 
 class TestQRCodeRegeneration:
     """Tests for QR code regeneration scenarios."""
 
     def test_regenerate_with_different_text(self, qr_page):
-        """Regenerating with different text should update QR code."""
+        """Changing text should update the QR code live."""
         textarea = qr_page.locator("#qrText")
-        generate_btn = qr_page.locator("#generateBtn")
 
         textarea.fill("First text")
-        generate_btn.click()
-
-        first_canvas = qr_page.locator("#qrcode canvas")
-        expect(first_canvas).to_be_visible()
+        expect(qr_page.locator("#qrcode canvas:not(.ghost)")).to_be_visible()
 
         textarea.fill("Second different text")
-        generate_btn.click()
-
-        second_canvas = qr_page.locator("#qrcode canvas")
-        expect(second_canvas).to_be_visible()
+        expect(qr_page.locator("#qrcode canvas:not(.ghost)")).to_be_visible()
 
     def test_switch_from_text_to_wifi(self, qr_page):
         """Should be able to generate text QR then wifi QR."""
-        textarea = qr_page.locator("#qrText")
-        textarea.fill("Text QR")
-        qr_page.locator("#generateBtn").click()
+        qr_page.locator("#qrText").fill("Text QR")
+        expect(qr_page.locator("#qrcode canvas:not(.ghost)")).to_be_visible()
 
-        expect(qr_page.locator("#qrcode canvas")).to_be_visible()
-
-        wifi_tab = qr_page.locator('.tab[data-tab="wifi"]')
-        wifi_tab.click()
+        qr_page.locator('.tab[data-tab="wifi"]').click()
 
         qr_page.locator("#wifiSsid").fill("MyWifi")
         qr_page.locator("#wifiPassword").fill("password123")
-        qr_page.locator("#generateBtn").click()
-
-        expect(qr_page.locator("#qrcode canvas")).to_be_visible()
+        expect(qr_page.locator("#qrcode canvas:not(.ghost)")).to_be_visible()

@@ -13,7 +13,7 @@
     <link rel="icon" href="data:,">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=1.4.0">
+    <link rel="stylesheet" href="styles.css?v=2.0.0">
 </head>
 
 <body data-theme="orchid">
@@ -35,8 +35,7 @@
                 </div>
             </div>
             <div class="top-actions">
-                <button id="resetBtn" class="icon-btn" type="button" title="Zuruecksetzen" aria-label="Zuruecksetzen">Undo</button>
-                <button id="historyToggle" class="secondary-btn" type="button">Export-Historie</button>
+                <button id="resetBtn" class="secondary-btn" type="button">Zuruecksetzen</button>
             </div>
         </header>
 
@@ -44,63 +43,62 @@
             <section class="panel controls-panel" aria-label="QR-Code Einstellungen">
                 <div id="errorMessage" class="error-message" role="alert" aria-live="assertive" hidden></div>
 
-                <div class="tabs content-tabs" role="tablist" aria-label="QR-Code Typ">
-                    <button class="tab active" type="button" data-tab="link" role="tab" id="tab-link"
+                <h2 class="section-title">Inhalt</h2>
+
+                <div class="type-row" role="tablist" aria-label="QR-Code Typ">
+                    <button class="tab type-chip active" type="button" data-tab="link" role="tab" id="tab-link"
                         aria-selected="true" aria-controls="linkTab" tabindex="0">
-                        <span class="tab-glyph" aria-hidden="true">URL</span>
+                        <svg class="chip-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.6 13.4a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.2 1.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M13.4 10.6a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.2-1.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                         Link
                     </button>
-                    <button class="tab" type="button" data-tab="wifi" role="tab" id="tab-wifi"
+                    <button class="tab type-chip" type="button" data-tab="wifi" role="tab" id="tab-wifi"
                         aria-selected="false" aria-controls="wifiTab" tabindex="-1">
-                        <span class="tab-glyph" aria-hidden="true">Wi</span>
+                        <svg class="chip-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 9a14.5 14.5 0 0 1 19 0M5.5 12.5a10 10 0 0 1 13 0M8.5 16a5.5 5.5 0 0 1 7 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="19.4" r="1.6" fill="currentColor"/></svg>
                         WLAN
                     </button>
-                    <button class="tab" type="button" data-tab="text" role="tab" id="tab-text"
+                    <button class="tab type-chip" type="button" data-tab="text" role="tab" id="tab-text"
                         aria-selected="false" aria-controls="textTab" tabindex="-1">
-                        <span class="tab-glyph" aria-hidden="true">TXT</span>
+                        <svg class="chip-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                         Text
                     </button>
-                    <button class="tab" type="button" data-tab="email" role="tab" id="tab-email"
-                        aria-selected="false" aria-controls="emailTab" tabindex="-1">
-                        <span class="tab-glyph" aria-hidden="true">@</span>
-                        E-Mail
-                    </button>
-                    <button class="tab" type="button" data-tab="phone" role="tab" id="tab-phone"
-                        aria-selected="false" aria-controls="phoneTab" tabindex="-1">
-                        <span class="tab-glyph" aria-hidden="true">Tel</span>
-                        Telefon
-                    </button>
-                    <button class="tab" type="button" data-tab="sms" role="tab" id="tab-sms"
-                        aria-selected="false" aria-controls="smsTab" tabindex="-1">
-                        <span class="tab-glyph" aria-hidden="true">SMS</span>
-                        SMS
-                    </button>
-                    <button class="tab" type="button" data-tab="vcard" role="tab" id="tab-vcard"
-                        aria-selected="false" aria-controls="vcardTab" tabindex="-1">
-                        <span class="tab-glyph" aria-hidden="true">VC</span>
-                        vCard
-                    </button>
-                    <button class="tab" type="button" data-tab="paypal" role="tab" id="tab-paypal"
-                        aria-selected="false" aria-controls="paypalTab" tabindex="-1">
-                        <span class="tab-glyph" aria-hidden="true">PP</span>
-                        PayPal
-                    </button>
-                    <button class="tab" type="button" data-tab="more" role="tab" id="tab-more"
-                        aria-selected="false" aria-controls="moreTab" tabindex="-1">
-                        <span class="tab-glyph" aria-hidden="true">...</span>
-                        Mehr
-                    </button>
+                    <div class="more-wrap">
+                        <button id="moreTypesBtn" class="type-chip more-chip" type="button" aria-haspopup="menu"
+                            aria-expanded="false" aria-controls="moreTypesMenu">
+                            <span id="moreTypesLabel">Mehr</span>
+                            <svg class="chip-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        </button>
+                        <div id="moreTypesMenu" class="more-menu" hidden>
+                            <button class="tab menu-item" type="button" data-tab="email" role="tab" id="tab-email"
+                                aria-selected="false" aria-controls="emailTab" tabindex="-1">E-Mail</button>
+                            <button class="tab menu-item" type="button" data-tab="phone" role="tab" id="tab-phone"
+                                aria-selected="false" aria-controls="phoneTab" tabindex="-1">Telefon</button>
+                            <button class="tab menu-item" type="button" data-tab="sms" role="tab" id="tab-sms"
+                                aria-selected="false" aria-controls="smsTab" tabindex="-1">SMS</button>
+                            <button class="tab menu-item" type="button" data-tab="vcard" role="tab" id="tab-vcard"
+                                aria-selected="false" aria-controls="vcardTab" tabindex="-1">vCard</button>
+                            <button class="tab menu-item" type="button" data-tab="paypal" role="tab" id="tab-paypal"
+                                aria-selected="false" aria-controls="paypalTab" tabindex="-1">PayPal</button>
+                            <button class="tab menu-item" type="button" data-tab="more" role="tab" id="tab-more"
+                                aria-selected="false" aria-controls="moreTab" tabindex="-1">Eigener Inhalt</button>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="content-card input-card">
+                <div class="input-area">
                     <div id="linkTab" class="tab-content active" role="tabpanel" aria-labelledby="tab-link">
                         <label for="qrText">URL</label>
                         <div class="field-with-action">
                             <input type="text" id="qrText" placeholder="https://portfolio-twin.com" maxlength="4296"
                                 autocomplete="url">
-                            <button class="clear-field" type="button" data-clear="qrText" aria-label="URL leeren">x</button>
+                            <button class="clear-field" type="button" data-clear="qrText" aria-label="URL leeren">&times;</button>
                         </div>
-                        <div class="character-count"><span id="charCount">0</span> / 4296</div>
+                        <div class="input-meta">
+                            <div id="typeSuggestion" class="type-suggestion" hidden>
+                                <span id="typeSuggestionText"></span>
+                                <button id="typeSuggestionBtn" type="button">Uebernehmen</button>
+                            </div>
+                            <div class="character-count"><span id="charCount">0</span> / 4296</div>
+                        </div>
                     </div>
 
                     <div id="wifiTab" class="tab-content" role="tabpanel" aria-labelledby="tab-wifi">
@@ -218,98 +216,37 @@
                     </div>
                 </div>
 
-                <button id="generateBtn" type="button">QR-Code Generieren</button>
+                <h2 class="section-title">Stil</h2>
+                <div id="stylePresets" class="preset-grid" role="group" aria-label="Stil-Presets"></div>
 
-                <section class="section-block" aria-labelledby="designHeading">
-                    <h2 id="designHeading">Design</h2>
-                    <div class="settings-table">
-                        <div class="settings-row">
-                            <div>
-                                <strong>QR-Stil</strong>
-                                <span>Waehle das Erscheinungsbild des QR-Codes.</span>
-                            </div>
-                            <select id="qrStyle" class="native-value" aria-label="QR-Stil">
-                                <option value="square">Klassisch</option>
-                                <option value="rounded" selected>Abgerundet</option>
-                                <option value="dots">Punkte</option>
-                                <option value="classy">Soft</option>
-                            </select>
-                            <div class="choice-group" aria-label="QR-Stil">
-                                <button class="choice-btn" type="button" data-control="qrStyle" data-value="square" title="Klassisch">SQ</button>
-                                <button class="choice-btn active" type="button" data-control="qrStyle" data-value="rounded" title="Abgerundet">RD</button>
-                                <button class="choice-btn" type="button" data-control="qrStyle" data-value="dots" title="Punkte">DT</button>
-                                <button class="choice-btn" type="button" data-control="qrStyle" data-value="classy" title="Soft">SF</button>
-                            </div>
-                        </div>
-
-                        <div class="settings-row">
-                            <div>
-                                <strong>Augen-Stil</strong>
-                                <span>Passe die Ecken der Positionserkennungsmarker an.</span>
-                            </div>
-                            <select id="finderStyle" class="native-value" aria-label="Augen-Stil">
-                                <option value="square">Klassisch</option>
-                                <option value="rounded" selected>Abgerundet</option>
-                                <option value="circle">Kreise</option>
-                            </select>
-                            <div class="choice-group" aria-label="Augen-Stil">
-                                <button class="choice-btn" type="button" data-control="finderStyle" data-value="square" title="Klassisch">SQ</button>
-                                <button class="choice-btn active" type="button" data-control="finderStyle" data-value="rounded" title="Abgerundet">RD</button>
-                                <button class="choice-btn" type="button" data-control="finderStyle" data-value="circle" title="Kreise">CR</button>
-                            </div>
-                        </div>
-
-                        <div class="settings-row color-row">
-                            <div>
-                                <strong>Farbe</strong>
-                                <span>Waehle Vordergrund, Hintergrund und Verlauf.</span>
-                            </div>
-                            <div class="swatch-row">
-                                <label class="swatch-field" title="Vordergrund">
-                                    <input type="color" id="fgColor" value="#6c5ce7">
-                                    <span>#6C5CE7</span>
-                                </label>
-                                <label class="swatch-field" title="Hintergrund">
-                                    <input type="color" id="bgColor" value="#ffffff">
-                                    <span>#FFFFFF</span>
-                                </label>
-                                <label class="swatch-field" title="Verlauf">
-                                    <input type="color" id="gradientColor" value="#9a8cff">
-                                    <span>#9A8CFF</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="settings-row">
-                            <div>
-                                <strong>Fehlerkorrektur</strong>
-                                <span>Bestimmt, wie viel Daten wiederhergestellt werden koennen.</span>
-                            </div>
-                            <select id="eccLevel">
-                                <option value="L">Niedrig (7%)</option>
-                                <option value="M">Mittel (15%)</option>
-                                <option value="Q">Hoch (25%)</option>
-                                <option value="H" selected>Hoch (30%)</option>
-                            </select>
-                        </div>
-
-                        <div class="settings-row">
-                            <div>
-                                <strong>Groesse</strong>
-                                <span>Pixelgroesse des QR-Codes.</span>
-                            </div>
-                            <div class="range-line">
-                                <input type="range" id="pixelSize" min="256" max="1024" step="128" value="512">
-                                <output id="pixelSizeVal" for="pixelSize">512 px</output>
-                            </div>
-                        </div>
+                <h2 class="section-title">Farbe</h2>
+                <div class="color-block">
+                    <div class="mode-segment" role="group" aria-label="Farbmodus">
+                        <button class="mode-btn" type="button" data-color-mode="solid">Einfarbig</button>
+                        <button class="mode-btn active" type="button" data-color-mode="gradient">Verlauf</button>
+                        <button class="mode-btn" type="button" data-color-mode="transparent">Transparent</button>
                     </div>
-                </section>
+                    <div class="swatch-row">
+                        <label class="swatch-field" title="Vordergrund">
+                            <input type="color" id="fgColor" value="#6c5ce7">
+                            <span class="swatch-name">Farbe</span>
+                        </label>
+                        <label class="swatch-field" id="gradientField" title="Verlaufsfarbe">
+                            <input type="color" id="gradientColor" value="#9a8cff">
+                            <span class="swatch-name">Verlauf</span>
+                        </label>
+                        <label class="swatch-field" id="bgField" title="Hintergrund">
+                            <input type="color" id="bgColor" value="#ffffff">
+                            <span class="swatch-name">Hintergrund</span>
+                        </label>
+                    </div>
+                    <div id="colorSwatches" class="pair-row" role="group" aria-label="Farb-Vorlagen"></div>
+                </div>
 
                 <details class="accordion-card" id="brandingDetails">
                     <summary>
-                        <span>Branding <em>PRO</em></span>
-                        <span aria-hidden="true">+</span>
+                        <span class="summary-title">Branding</span>
+                        <span id="brandingSummary" class="summary-state">Badge aktiv</span>
                     </summary>
                     <div class="accordion-body">
                         <label class="toggle-row" for="useBadge">
@@ -336,30 +273,43 @@
                                 <label for="logoSize">Logo Groesse: <span id="logoSizeVal">20%</span></label>
                                 <input type="range" id="logoSize" min="8" max="30" value="20">
                             </div>
+                            <p id="eccNote" class="field-note" hidden>Fehlerkorrektur automatisch auf Hoch (30%) erhoeht.</p>
                         </div>
                     </div>
                 </details>
 
-                <details class="accordion-card" id="optionsDetails">
+                <details class="accordion-card" id="advancedDetails">
                     <summary>
-                        <span>Optionen</span>
-                        <span aria-hidden="true">+</span>
+                        <span class="summary-title">Erweitert</span>
+                        <span class="summary-state">Form, Fehlerkorrektur, Rand</span>
                     </summary>
                     <div class="accordion-body">
-                        <div class="options-row">
-                            <label class="toggle-row" for="useGradient">
-                                <input type="checkbox" id="useGradient" checked>
-                                <span>Farbverlauf aktivieren</span>
-                            </label>
-                            <label class="toggle-row" for="transparentBackground">
-                                <input type="checkbox" id="transparentBackground">
-                                <span>Transparenter Hintergrund</span>
-                            </label>
+                        <div class="input-grid">
                             <div class="input-group">
-                                <label for="gradientType">Verlauf</label>
-                                <select id="gradientType">
-                                    <option value="linear" selected>Linear</option>
-                                    <option value="radial">Radial</option>
+                                <label for="qrStyle">Modulform</label>
+                                <select id="qrStyle">
+                                    <option value="square">Klassisch</option>
+                                    <option value="rounded" selected>Abgerundet</option>
+                                    <option value="dots">Punkte</option>
+                                    <option value="classy">Soft</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="finderStyle">Augenform</label>
+                                <select id="finderStyle">
+                                    <option value="square">Klassisch</option>
+                                    <option value="rounded" selected>Abgerundet</option>
+                                    <option value="circle">Kreise</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="eccLevel">Fehlerkorrektur</label>
+                                <select id="eccLevel">
+                                    <option value="auto" selected>Auto (empfohlen)</option>
+                                    <option value="L">Niedrig (7%)</option>
+                                    <option value="M">Mittel (15%)</option>
+                                    <option value="Q">Hoch (25%)</option>
+                                    <option value="H">Sehr hoch (30%)</option>
                                 </select>
                             </div>
                             <div class="input-group">
@@ -370,7 +320,14 @@
                                     <option value="6">Gross</option>
                                 </select>
                             </div>
-                            <div class="input-group wide">
+                            <div class="input-group">
+                                <label for="gradientType">Verlaufstyp</label>
+                                <select id="gradientType">
+                                    <option value="linear" selected>Linear</option>
+                                    <option value="radial">Radial</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
                                 <label for="moduleScale">Modul-Fuellung: <span id="moduleScaleVal">92%</span></label>
                                 <input type="range" id="moduleScale" min="65" max="100" value="92">
                             </div>
@@ -379,41 +336,51 @@
                 </details>
 
                 <footer class="privacy-note">
-                    <span aria-hidden="true">OK</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true" class="privacy-icon"><path d="M12 3 5 6v5c0 4.4 3 8.4 7 9.7 4-1.3 7-5.3 7-9.7V6l-7-3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <p>Deine Daten werden nicht gespeichert<br>100% lokal im Browser</p>
                 </footer>
             </section>
 
             <section class="panel preview-panel" aria-label="QR-Code Vorschau">
-                <div class="preview-actions">
-                    <button id="previewResetBtn" class="icon-btn" type="button" title="Zuruecksetzen" aria-label="Zuruecksetzen">Undo</button>
-                    <button id="quickResetBtn" class="secondary-btn" type="button">Zuruecksetzen</button>
-                </div>
-
                 <div class="preview-stack">
-                    <div id="qrcode" aria-label="QR-Code Ausgabebereich">
-                        <div class="empty-state">QR-Code wird hier angezeigt</div>
-                    </div>
+                    <div id="qrcode" aria-label="QR-Code Ausgabebereich"></div>
 
-                    <div class="status-card" id="statusCard">
-                        <div class="status-dot" aria-hidden="true">OK</div>
+                    <div class="status-card" id="statusCard" data-state="idle">
+                        <span class="status-dot" aria-hidden="true"></span>
                         <div>
                             <strong id="statusText">Warte auf Inhalt</strong>
-                            <p id="statusSubtext">Generiere einen QR-Code fuer die Download-Optionen.</p>
+                            <p id="statusSubtext">Gib oben einen Inhalt ein - die Vorschau aktualisiert sich live.</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="download-panel">
-                    <div class="section-label">Herunterladen</div>
-                    <div class="format-grid" aria-label="Downloadformat">
-                        <button class="format-btn active" type="button" data-format="png">PNG</button>
-                        <button class="format-btn" type="button" data-format="svg">SVG</button>
-                        <button class="format-btn" type="button" data-format="pdf">PDF</button>
-                        <button class="format-btn" type="button" data-format="eps">EPS</button>
+                    <div class="section-label">Export</div>
+                    <div class="export-row">
+                        <div class="input-group">
+                            <label for="pixelSize">Groesse</label>
+                            <select id="pixelSize">
+                                <option value="256">256 px</option>
+                                <option value="512" selected>512 px</option>
+                                <option value="1024">1024 px</option>
+                                <option value="2048">2048 px</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-label">Format</span>
+                            <div class="format-grid" aria-label="Downloadformat">
+                                <button class="format-btn active" type="button" data-format="png">PNG</button>
+                                <button class="format-btn" type="button" data-format="svg">SVG</button>
+                                <button class="format-btn" type="button" data-format="pdf">PDF</button>
+                                <button class="format-btn" type="button" data-format="eps">EPS</button>
+                            </div>
+                        </div>
                     </div>
-                    <button id="downloadBtn" type="button" hidden>Herunterladen (PNG)</button>
-                    <button id="shareBtn" class="ghost-btn" type="button" hidden>Teilen</button>
+                    <button id="downloadBtn" type="button" disabled>Herunterladen (PNG)</button>
+                    <div class="secondary-actions">
+                        <button id="shareBtn" class="ghost-btn" type="button">Teilen</button>
+                        <button id="historyToggle" class="ghost-btn" type="button">Historie</button>
+                    </div>
                     <p id="formatHint" class="format-hint">PNG ist ideal fuer digitale Anwendungen.</p>
                 </div>
 
@@ -428,10 +395,15 @@
         </main>
     </div>
 
+    <div id="undoToast" class="undo-toast" hidden>
+        <span>Einstellungen zurueckgesetzt.</span>
+        <button id="undoResetBtn" type="button">Rueckgaengig</button>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
         integrity="sha384-lQXOAyZwHXE55JFyrOMB7nY2Wv+m5ZWNtJcHrd1rceRQXAYNLak8ukN5TjBTcIwz"
         crossorigin="anonymous"></script>
-    <script src="script.js?v=1.4.0"></script>
+    <script src="script.js?v=2.0.0"></script>
 </body>
 
 </html>

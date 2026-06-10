@@ -1,17 +1,26 @@
 // DOM Elements
 const qrText = document.getElementById('qrText');
 const plainText = document.getElementById('plainText');
-const generateBtn = document.getElementById('generateBtn');
 const downloadBtn = document.getElementById('downloadBtn');
 const shareBtn = document.getElementById('shareBtn');
 const qrcodeDiv = document.getElementById('qrcode');
 const resetBtn = document.getElementById('resetBtn');
-const previewResetBtn = document.getElementById('previewResetBtn');
-const quickResetBtn = document.getElementById('quickResetBtn');
+const undoToast = document.getElementById('undoToast');
+const undoResetBtn = document.getElementById('undoResetBtn');
 const historyToggle = document.getElementById('historyToggle');
 const historyDrawer = document.getElementById('historyDrawer');
 const historyList = document.getElementById('historyList');
 const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+const moreTypesBtn = document.getElementById('moreTypesBtn');
+const moreTypesMenu = document.getElementById('moreTypesMenu');
+const moreTypesLabel = document.getElementById('moreTypesLabel');
+const typeSuggestion = document.getElementById('typeSuggestion');
+const typeSuggestionText = document.getElementById('typeSuggestionText');
+const typeSuggestionBtn = document.getElementById('typeSuggestionBtn');
+const stylePresetsDiv = document.getElementById('stylePresets');
+const colorSwatchesDiv = document.getElementById('colorSwatches');
+const gradientField = document.getElementById('gradientField');
+const bgField = document.getElementById('bgField');
 const wifiSsid = document.getElementById('wifiSsid');
 const wifiPassword = document.getElementById('wifiPassword');
 const wifiSecurity = document.getElementById('wifiSecurity');
@@ -32,13 +41,14 @@ const paypalHandle = document.getElementById('paypalHandle');
 const paypalAmount = document.getElementById('paypalAmount');
 const customPayload = document.getElementById('customPayload');
 const eccLevel = document.getElementById('eccLevel');
+const eccNote = document.getElementById('eccNote');
 const pixelSize = document.getElementById('pixelSize');
-const pixelSizeVal = document.getElementById('pixelSizeVal');
 const quietZone = document.getElementById('quietZone');
 const moduleScale = document.getElementById('moduleScale');
 const moduleScaleVal = document.getElementById('moduleScaleVal');
 const errorMessage = document.getElementById('errorMessage');
 const charCount = document.getElementById('charCount');
+const statusCard = document.getElementById('statusCard');
 const statusText = document.getElementById('statusText');
 const statusSubtext = document.getElementById('statusSubtext');
 const formatHint = document.getElementById('formatHint');
@@ -46,10 +56,8 @@ const formatHint = document.getElementById('formatHint');
 // Design Controls
 const fgColor = document.getElementById('fgColor');
 const bgColor = document.getElementById('bgColor');
-const useGradient = document.getElementById('useGradient');
 const gradientColor = document.getElementById('gradientColor');
 const gradientType = document.getElementById('gradientType');
-const transparentBackground = document.getElementById('transparentBackground');
 const qrStyle = document.getElementById('qrStyle');
 const finderStyle = document.getElementById('finderStyle');
 const logoEnabled = document.getElementById('logoEnabled');
@@ -60,6 +68,7 @@ const logoSizeVal = document.getElementById('logoSizeVal');
 const logoName = document.getElementById('logoName');
 const useBadge = document.getElementById('useBadge');
 const badgeText = document.getElementById('badgeText');
+const brandingSummary = document.getElementById('brandingSummary');
 
 // Constants
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -67,12 +76,24 @@ const MAX_IMAGE_DIMENSION = 4096; // px
 const MAX_QR_TEXT_LENGTH = 4296;
 const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
 const HISTORY_KEY = 'qr-maker-export-history';
+const SETTINGS_KEY = 'qr-maker-settings-v2';
+const GHOST_PAYLOAD = 'https://example.com';
 
-const COLOR_PRESETS = {
-    neon: { fg: '#6c5ce7', bg: '#ffffff', gradient: '#9a8cff', gradientOn: true },
-    ocean: { fg: '#102235', bg: '#f7fbff', gradient: '#00a7c8', gradientOn: true },
-    forest: { fg: '#18352a', bg: '#fbfff8', gradient: '#75a843', gradientOn: true },
-    mono: { fg: '#111827', bg: '#ffffff', gradient: '#111827', gradientOn: false }
+const STYLE_PRESETS = {
+    klassik: { label: 'Klassik', qrStyle: 'square', finderStyle: 'square', colorMode: 'solid', fg: '#111827', bg: '#ffffff', gradient: '#111827' },
+    soft: { label: 'Soft', qrStyle: 'rounded', finderStyle: 'rounded', colorMode: 'solid', fg: '#1f2937', bg: '#ffffff', gradient: '#1f2937' },
+    dots: { label: 'Dots', qrStyle: 'dots', finderStyle: 'circle', colorMode: 'solid', fg: '#111827', bg: '#ffffff', gradient: '#111827' },
+    orchid: { label: 'Orchid', qrStyle: 'rounded', finderStyle: 'rounded', colorMode: 'gradient', fg: '#6c5ce7', bg: '#ffffff', gradient: '#9a8cff' },
+    mono: { label: 'Mono', qrStyle: 'classy', finderStyle: 'rounded', colorMode: 'solid', fg: '#6c5ce7', bg: '#ffffff', gradient: '#6c5ce7' }
+};
+
+const COLOR_SWATCHES = {
+    black: { fg: '#111827', bg: '#ffffff', gradient: '#111827', mode: 'solid' },
+    orchid: { fg: '#6c5ce7', bg: '#ffffff', gradient: '#9a8cff', mode: 'gradient' },
+    ocean: { fg: '#102235', bg: '#f7fbff', gradient: '#00a7c8', mode: 'gradient' },
+    forest: { fg: '#18352a', bg: '#fbfff8', gradient: '#75a843', mode: 'gradient' },
+    sunset: { fg: '#7c2d12', bg: '#fff7ed', gradient: '#f97316', mode: 'gradient' },
+    slate: { fg: '#0f172a', bg: '#e2e8f0', gradient: '#0f172a', mode: 'solid' }
 };
 
 const FORMAT_HINTS = {
@@ -94,14 +115,32 @@ const TYPE_LABELS = {
     more: 'Custom'
 };
 
+const MENU_TYPE_LABELS = {
+    email: 'E-Mail',
+    phone: 'Telefon',
+    sms: 'SMS',
+    vcard: 'vCard',
+    paypal: 'PayPal',
+    more: 'Eigener Inhalt'
+};
+
+const PRIMARY_TYPES = ['link', 'wifi', 'text'];
+
+const ECC_CAPACITY = { L: 7, M: 15, Q: 25, H: 30 };
+
 let currentTab = 'link';
+let currentPreset = 'orchid';
+let colorMode = 'gradient';
 let uploadedLogo = null;
 let selectedFormat = 'png';
 let lastPayload = '';
 let lastQr = null;
 let lastOptions = null;
 let currentCanvas = null;
-let regenerateTimer = null;
+let renderTimer = null;
+let undoSnapshot = null;
+let undoTimer = null;
+let suppressPersist = false;
 
 // --- Error and Status Display ---
 
@@ -116,10 +155,10 @@ function clearError() {
     errorMessage.hidden = true;
 }
 
-function setStatus(title, detail, ready = false) {
+function setStatus(state, title, detail) {
+    statusCard.dataset.state = state;
     statusText.textContent = title;
     statusSubtext.textContent = detail;
-    statusText.style.color = ready ? '#85f0b1' : '';
 }
 
 // --- Input Sanitization ---
@@ -186,7 +225,41 @@ function validateImageDimensions(img) {
     return { valid: true, error: null };
 }
 
-// --- Tab Switching with Keyboard Navigation ---
+// --- Content Type Selection (chips + more menu) ---
+
+function closeMoreMenu() {
+    moreTypesMenu.hidden = true;
+    moreTypesBtn.setAttribute('aria-expanded', 'false');
+}
+
+function updateMoreChip() {
+    const secondary = !PRIMARY_TYPES.includes(currentTab);
+    moreTypesLabel.textContent = secondary ? MENU_TYPE_LABELS[currentTab] : 'Mehr';
+    moreTypesBtn.classList.toggle('active', secondary);
+}
+
+function activateTab(tab) {
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+        t.setAttribute('tabindex', '-1');
+    });
+    tabContents.forEach(c => c.classList.remove('active'));
+
+    tab.classList.add('active');
+    tab.setAttribute('aria-selected', 'true');
+    tab.setAttribute('tabindex', '0');
+    currentTab = tab.dataset.tab;
+    document.getElementById(`${currentTab}Tab`).classList.add('active');
+    badgeText.value = TYPE_LABELS[currentTab].slice(0, 6).toUpperCase();
+    updateMoreChip();
+    closeMoreMenu();
+    clearError();
+    scheduleRender();
+}
 
 function initTabs() {
     const tabs = document.querySelectorAll('.tab');
@@ -194,6 +267,22 @@ function initTabs() {
 
     tabs.forEach(tab => {
         tab.addEventListener('click', () => activateTab(tab));
+    });
+
+    moreTypesBtn.addEventListener('click', () => {
+        const open = moreTypesMenu.hidden;
+        moreTypesMenu.hidden = !open;
+        moreTypesBtn.setAttribute('aria-expanded', String(open));
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!moreTypesMenu.hidden && !e.target.closest('.more-wrap')) {
+            closeMoreMenu();
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeMoreMenu();
     });
 
     if (tabList) {
@@ -217,100 +306,64 @@ function initTabs() {
             }
 
             if (newIndex >= 0) {
-                activateTab(tabsArray[newIndex]);
-                tabsArray[newIndex].focus();
+                const target = tabsArray[newIndex];
+                activateTab(target);
+                if (PRIMARY_TYPES.includes(target.dataset.tab)) {
+                    target.focus();
+                } else {
+                    moreTypesBtn.focus();
+                }
             }
         });
     }
 }
 
-function activateTab(tab) {
-    const tabs = document.querySelectorAll('.tab');
-    const tabContents = document.querySelectorAll('.tab-content');
-
-    tabs.forEach(t => {
-        t.classList.remove('active');
-        t.setAttribute('aria-selected', 'false');
-        t.setAttribute('tabindex', '-1');
-    });
-    tabContents.forEach(c => c.classList.remove('active'));
-
-    tab.classList.add('active');
-    tab.setAttribute('aria-selected', 'true');
-    tab.setAttribute('tabindex', '0');
-    currentTab = tab.dataset.tab;
-    document.getElementById(`${currentTab}Tab`).classList.add('active');
-    badgeText.value = TYPE_LABELS[currentTab].slice(0, 6).toUpperCase();
-    clearError();
-}
-
 // --- QR Code Input Extraction ---
+// Builders return { payload, hint } - hint describes missing input (live mode, no error banner).
 
 function getLinkInput() {
     const text = sanitizeInput(qrText.value.trim());
-    if (!text) {
-        showError('Bitte gib eine URL oder einen Text ein!');
-        return null;
-    }
-    return text;
+    if (!text) return { payload: null, hint: 'Gib eine URL oder einen Text ein.' };
+    return { payload: text };
 }
 
 function getTextInput() {
     const text = sanitizeInput(plainText.value.trim());
-    if (!text) {
-        showError('Bitte gib einen Text ein!');
-        return null;
-    }
-    return text;
+    if (!text) return { payload: null, hint: 'Gib einen Text ein.' };
+    return { payload: text };
 }
 
 function getWifiInput() {
     const ssid = wifiSsid.value.trim();
-    const password = wifiPassword.value;
-    const security = wifiSecurity.value;
-    const hidden = wifiHidden.checked ? 'true' : 'false';
-
-    if (!ssid) {
-        showError('Bitte gib einen Netzwerknamen (SSID) ein!');
-        return null;
-    }
-
+    if (!ssid) return { payload: null, hint: 'Gib einen Netzwerknamen (SSID) ein.' };
     const escapedSsid = escapeWifiField(ssid);
-    const escapedPassword = escapeWifiField(password);
-    return `WIFI:T:${security};S:${escapedSsid};P:${escapedPassword};H:${hidden};;`;
+    const escapedPassword = escapeWifiField(wifiPassword.value);
+    const hidden = wifiHidden.checked ? 'true' : 'false';
+    return { payload: `WIFI:T:${wifiSecurity.value};S:${escapedSsid};P:${escapedPassword};H:${hidden};;` };
 }
 
 function getEmailInput() {
     const to = emailTo.value.trim();
-    if (!to) {
-        showError('Bitte gib eine E-Mail-Adresse ein!');
-        return null;
-    }
+    if (!to) return { payload: null, hint: 'Gib eine E-Mail-Adresse ein.' };
     const subject = encodeURIComponent(emailSubject.value.trim());
     const body = encodeURIComponent(emailBody.value.trim());
     const query = [
         subject ? `subject=${subject}` : '',
         body ? `body=${body}` : ''
     ].filter(Boolean).join('&');
-    return `mailto:${encodeURIComponent(to)}${query ? `?${query}` : ''}`;
+    return { payload: `mailto:${encodeURIComponent(to)}${query ? `?${query}` : ''}` };
 }
 
 function getPhoneInput() {
     const phone = phoneNumber.value.trim();
-    if (!phone) {
-        showError('Bitte gib eine Telefonnummer ein!');
-        return null;
-    }
-    return `tel:${phone.replace(/\s+/g, '')}`;
+    if (!phone) return { payload: null, hint: 'Gib eine Telefonnummer ein.' };
+    return { payload: `tel:${phone.replace(/\s+/g, '')}` };
 }
 
 function getSmsInput() {
     const phone = smsPhone.value.trim();
-    if (!phone) {
-        showError('Bitte gib eine Telefonnummer fuer SMS ein!');
-        return null;
-    }
-    return `SMSTO:${phone.replace(/\s+/g, '')}:${smsMessage.value.trim()}`;
+    if (!phone) return { payload: null, hint: 'Gib eine Telefonnummer fuer SMS ein.' };
+    return { payload: `SMSTO:${phone.replace(/\s+/g, '')}:${smsMessage.value.trim()}` };
 }
 
 function getVCardInput() {
@@ -318,10 +371,9 @@ function getVCardInput() {
     const last = vcardLast.value.trim();
     const fullName = [first, last].filter(Boolean).join(' ');
     if (!fullName && !vcardPhone.value.trim() && !vcardEmail.value.trim()) {
-        showError('Bitte gib mindestens Name, Telefon oder E-Mail fuer die vCard ein!');
-        return null;
+        return { payload: null, hint: 'Gib mindestens Name, Telefon oder E-Mail ein.' };
     }
-    return [
+    const payload = [
         'BEGIN:VCARD',
         'VERSION:3.0',
         `N:${escapeVCardField(last)};${escapeVCardField(first)};;;`,
@@ -332,28 +384,23 @@ function getVCardInput() {
         vcardUrl.value.trim() ? `URL:${escapeVCardField(vcardUrl.value.trim())}` : '',
         'END:VCARD'
     ].filter(Boolean).join('\n');
+    return { payload };
 }
 
 function getPaypalInput() {
     const handle = normalizePaypalHandle(paypalHandle.value);
-    if (!handle) {
-        showError('Bitte gib einen PayPal.me Namen ein!');
-        return null;
-    }
+    if (!handle) return { payload: null, hint: 'Gib einen PayPal.me Namen ein.' };
     const amount = paypalAmount.value.trim().replace(',', '.');
-    return `https://paypal.me/${encodeURIComponent(handle)}${amount ? `/${encodeURIComponent(amount)}` : ''}`;
+    return { payload: `https://paypal.me/${encodeURIComponent(handle)}${amount ? `/${encodeURIComponent(amount)}` : ''}` };
 }
 
 function getCustomInput() {
     const text = sanitizeInput(customPayload.value.trim());
-    if (!text) {
-        showError('Bitte gib einen eigenen QR-Inhalt ein!');
-        return null;
-    }
-    return text;
+    if (!text) return { payload: null, hint: 'Gib einen eigenen QR-Inhalt ein.' };
+    return { payload: text };
 }
 
-function getInputText() {
+function getInputResult() {
     if (currentTab === 'link') return getLinkInput();
     if (currentTab === 'text') return getTextInput();
     if (currentTab === 'wifi') return getWifiInput();
@@ -363,7 +410,7 @@ function getInputText() {
     if (currentTab === 'vcard') return getVCardInput();
     if (currentTab === 'paypal') return getPaypalInput();
     if (currentTab === 'more') return getCustomInput();
-    return null;
+    return { payload: null, hint: '' };
 }
 
 // --- QR Code Rendering ---
@@ -375,14 +422,19 @@ function createQRMatrix(text, ecc) {
     return qr;
 }
 
+function effectiveEcc() {
+    if (eccLevel.value !== 'auto') return eccLevel.value;
+    return (logoEnabled.checked && uploadedLogo) ? 'H' : 'M';
+}
+
 function getRenderOptions() {
     return {
         fgColor: fgColor.value,
         bgColor: bgColor.value,
-        useGradient: useGradient.checked,
+        useGradient: colorMode === 'gradient',
         gradientColor: gradientColor.value,
         gradientType: gradientType.value,
-        transparentBackground: transparentBackground.checked,
+        transparentBackground: colorMode === 'transparent',
         qrStyle: qrStyle.value,
         finderStyle: finderStyle.value,
         outputSize: parseInt(pixelSize.value, 10),
@@ -807,99 +859,366 @@ function downloadBlob(blob, filename) {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-// --- Main Generate Function ---
+// --- Scan Check (contrast, logo coverage, payload length) ---
 
-function setGeneratedState(canvas, qr, payload, options) {
-    qrcodeDiv.innerHTML = '';
-    qrcodeDiv.appendChild(canvas);
-    downloadBtn.hidden = false;
-    shareBtn.hidden = false;
-    currentCanvas = canvas;
-    lastQr = qr;
-    lastPayload = payload;
-    lastOptions = options;
-    setStatus('Scannbar', 'Dein QR-Code ist bereit zum Scannen.', true);
+function relativeLuminance(hex) {
+    const { r, g, b } = hexToRgb(hex);
+    const channel = (c) => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+    return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
 }
 
-function generateQRCode() {
-    clearError();
-    const text = getInputText();
-    if (!text) return;
+function contrastRatio(hexA, hexB) {
+    const la = relativeLuminance(hexA);
+    const lb = relativeLuminance(hexB);
+    const lighter = Math.max(la, lb);
+    const darker = Math.min(la, lb);
+    return (lighter + 0.05) / (darker + 0.05);
+}
 
+function runScanCheck(payload, options, ecc) {
+    const warnings = [];
+    const bg = options.transparentBackground ? '#ffffff' : options.bgColor;
+    const fgWorst = options.useGradient
+        ? (relativeLuminance(options.gradientColor) > relativeLuminance(options.fgColor)
+            ? options.gradientColor : options.fgColor)
+        : options.fgColor;
+
+    if (relativeLuminance(fgWorst) > relativeLuminance(bg)) {
+        warnings.push('Vordergrund ist heller als der Hintergrund - viele Scanner lesen invertierte Codes nicht.');
+    } else if (contrastRatio(fgWorst, bg) < 2.5) {
+        warnings.push('Kontrast ist gering - waehle einen dunkleren Vordergrund oder helleren Hintergrund.');
+    }
+
+    if (options.logoEnabled && options.logoSrc) {
+        const coverage = options.logoSize * options.logoSize * 100;
+        if (coverage > ECC_CAPACITY[ecc] * 0.6) {
+            warnings.push('Logo verdeckt viel Flaeche - verkleinere das Logo oder erhoehe die Fehlerkorrektur.');
+        }
+    }
+
+    if (payload.length > 1000) {
+        warnings.push('Sehr viele Daten - der Code wird feinteilig und braucht eine groessere Darstellung.');
+    }
+
+    return warnings;
+}
+
+// --- Live Rendering ---
+
+function setExportEnabled(enabled) {
+    downloadBtn.disabled = !enabled;
+    shareBtn.disabled = !enabled;
+}
+
+function renderGhostPreview() {
     try {
         const options = getRenderOptions();
-        const qr = createQRMatrix(text, eccLevel.value);
+        const qr = createQRMatrix(GHOST_PAYLOAD, 'M');
         const { canvas } = renderToCanvas(qr, options);
-        setGeneratedState(canvas, qr, text, options);
+        canvas.classList.add('ghost');
+        qrcodeDiv.innerHTML = '';
+        qrcodeDiv.appendChild(canvas);
     } catch (err) {
-        showError('Fehler beim Generieren des QR-Codes. Bitte versuche es mit kuerzerem Text.');
-        setStatus('Nicht generiert', 'Pruefe Inhalt und Einstellungen.', false);
+        qrcodeDiv.innerHTML = '<div class="empty-state">QR-Code wird hier angezeigt</div>';
     }
 }
 
-function scheduleRegenerate() {
-    if (!lastPayload) return;
-    window.clearTimeout(regenerateTimer);
-    regenerateTimer = window.setTimeout(() => {
-        generateQRCode();
-    }, 120);
+function renderPreview() {
+    const result = getInputResult();
+
+    if (!result.payload) {
+        lastPayload = '';
+        lastQr = null;
+        lastOptions = null;
+        currentCanvas = null;
+        setExportEnabled(false);
+        renderGhostPreview();
+        setStatus('idle', 'Warte auf Inhalt', result.hint || 'Gib oben einen Inhalt ein - die Vorschau aktualisiert sich live.');
+        return;
+    }
+
+    try {
+        const options = getRenderOptions();
+        const ecc = effectiveEcc();
+        const qr = createQRMatrix(result.payload, ecc);
+        const { canvas } = renderToCanvas(qr, options);
+        qrcodeDiv.innerHTML = '';
+        qrcodeDiv.appendChild(canvas);
+        currentCanvas = canvas;
+        lastQr = qr;
+        lastPayload = result.payload;
+        lastOptions = options;
+        setExportEnabled(true);
+        clearError();
+
+        const warnings = runScanCheck(result.payload, options, ecc);
+        if (warnings.length) {
+            setStatus('warn', 'Eingeschraenkt scanbar', warnings[0]);
+        } else {
+            setStatus('ok', 'Gut scanbar', 'Dein QR-Code ist bereit zum Download.');
+        }
+    } catch (err) {
+        setExportEnabled(false);
+        setStatus('warn', 'Zu viele Daten', 'Der Inhalt ist zu lang fuer einen QR-Code - kuerze den Text.');
+    }
 }
 
-// --- Event Listeners ---
-
-function updateCharacterCount() {
-    charCount.textContent = String(qrText.value.length);
+function scheduleRender() {
+    window.clearTimeout(renderTimer);
+    renderTimer = window.setTimeout(() => {
+        renderPreview();
+        saveSettings();
+    }, 150);
 }
 
-function updateGradientState() {
-    gradientColor.disabled = !useGradient.checked;
-    gradientType.disabled = !useGradient.checked;
+// --- Style Presets ---
+
+function renderPresetThumb(canvasHost, preset) {
+    try {
+        const qr = createQRMatrix('QR-CODE', 'M');
+        const { canvas } = renderToCanvas(qr, {
+            fgColor: preset.fg,
+            bgColor: preset.bg,
+            useGradient: preset.colorMode === 'gradient',
+            gradientColor: preset.gradient,
+            gradientType: 'linear',
+            transparentBackground: false,
+            qrStyle: preset.qrStyle,
+            finderStyle: preset.finderStyle,
+            outputSize: 96,
+            quietZone: 2,
+            moduleScale: 0.92,
+            logoEnabled: false,
+            logoSize: 0.2,
+            logoSrc: null,
+            useBadge: false,
+            badgeText: 'QR'
+        });
+        canvas.removeAttribute('role');
+        canvas.removeAttribute('aria-label');
+        canvasHost.appendChild(canvas);
+    } catch (err) {
+        // Thumbnail ist rein dekorativ - Fehler still ignorieren.
+    }
 }
+
+function markPreset(name) {
+    currentPreset = name;
+    document.querySelectorAll('.style-preset').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.stylePreset === name);
+    });
+}
+
+function applyStylePreset(name) {
+    const preset = STYLE_PRESETS[name];
+    if (!preset) return;
+    suppressPersist = true;
+    qrStyle.value = preset.qrStyle;
+    finderStyle.value = preset.finderStyle;
+    fgColor.value = preset.fg;
+    bgColor.value = preset.bg;
+    gradientColor.value = preset.gradient;
+    setColorMode(preset.colorMode, { silent: true });
+    suppressPersist = false;
+    markPreset(name);
+    scheduleRender();
+}
+
+function initStylePresets() {
+    Object.entries(STYLE_PRESETS).forEach(([name, preset]) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'style-preset';
+        btn.dataset.stylePreset = name;
+        const thumb = document.createElement('span');
+        thumb.className = 'preset-thumb';
+        renderPresetThumb(thumb, preset);
+        const label = document.createElement('span');
+        label.className = 'preset-label';
+        label.textContent = preset.label;
+        btn.append(thumb, label);
+        btn.addEventListener('click', () => applyStylePreset(name));
+        stylePresetsDiv.appendChild(btn);
+    });
+
+    const customBtn = document.createElement('button');
+    customBtn.type = 'button';
+    customBtn.className = 'style-preset preset-custom';
+    customBtn.dataset.stylePreset = 'custom';
+    const thumb = document.createElement('span');
+    thumb.className = 'preset-thumb custom-thumb';
+    thumb.textContent = '+';
+    const label = document.createElement('span');
+    label.className = 'preset-label';
+    label.textContent = 'Eigene';
+    customBtn.append(thumb, label);
+    customBtn.addEventListener('click', () => {
+        const advanced = document.getElementById('advancedDetails');
+        advanced.open = true;
+        advanced.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        markPreset('custom');
+    });
+    stylePresetsDiv.appendChild(customBtn);
+
+    markPreset(currentPreset);
+}
+
+// --- Color Mode + Swatches ---
+
+function setColorMode(mode, opts = {}) {
+    colorMode = mode;
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.colorMode === mode);
+    });
+    gradientField.hidden = mode !== 'gradient';
+    bgField.hidden = mode === 'transparent';
+    if (!opts.silent) {
+        markPreset('custom');
+        scheduleRender();
+    }
+}
+
+function initColorSwatches() {
+    Object.entries(COLOR_SWATCHES).forEach(([name, swatch]) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'pair-swatch';
+        btn.dataset.swatch = name;
+        btn.title = name;
+        btn.style.background = swatch.mode === 'gradient'
+            ? `linear-gradient(135deg, ${swatch.gradient}, ${swatch.fg})`
+            : swatch.fg;
+        btn.style.borderColor = swatch.bg;
+        btn.addEventListener('click', () => {
+            fgColor.value = swatch.fg;
+            bgColor.value = swatch.bg;
+            gradientColor.value = swatch.gradient;
+            setColorMode(swatch.mode, { silent: true });
+            markPreset('custom');
+            scheduleRender();
+        });
+        colorSwatchesDiv.appendChild(btn);
+    });
+}
+
+// --- Branding Summary + ECC Note ---
 
 function updateLogoState() {
     const enabled = logoEnabled.checked;
     logoOptions.hidden = !enabled;
     logoInput.disabled = !enabled;
     logoSize.disabled = !enabled;
+    updateBrandingSummary();
+    updateEccNote();
 }
 
-function updatePixelSizeState() {
-    pixelSizeVal.textContent = `${pixelSize.value} px`;
+function updateBrandingSummary() {
+    const parts = [];
+    if (logoEnabled.checked && uploadedLogo) parts.push('Logo aktiv');
+    if (useBadge.checked) parts.push(`Badge "${badgeText.value.trim().toUpperCase() || 'QR'}"`);
+    brandingSummary.textContent = parts.length ? parts.join(' / ') : 'Aus';
 }
 
-function updateColorLabels() {
-    document.querySelectorAll('.swatch-field').forEach(field => {
-        const input = field.querySelector('input[type="color"]');
-        const label = field.querySelector('span');
-        if (input && label) label.textContent = input.value.toUpperCase();
-    });
+function updateEccNote() {
+    eccNote.hidden = !(eccLevel.value === 'auto' && logoEnabled.checked && uploadedLogo);
 }
 
-function setChoice(controlId, value) {
-    const control = document.getElementById(controlId);
-    if (!control) return;
-    control.value = value;
-    document.querySelectorAll(`.choice-btn[data-control="${controlId}"]`).forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.value === value);
-    });
-    scheduleRegenerate();
+// --- Type Auto-Detection (paste into link field) ---
+
+const PAYLOAD_PATTERNS = [
+    { re: /^WIFI:/i, label: 'WLAN-Code erkannt', target: 'more' },
+    { re: /^BEGIN:VCARD/i, label: 'vCard erkannt', target: 'more' },
+    { re: /^SMSTO:/i, label: 'SMS-Code erkannt', target: 'more' },
+    { re: /^geo:/i, label: 'Geo-Koordinaten erkannt', target: 'more' },
+    { re: /^tel:/i, label: 'Telefonnummer erkannt', target: 'phone' },
+    { re: /^mailto:/i, label: 'E-Mail-Link erkannt', target: 'email' }
+];
+
+let suggestionTarget = null;
+
+function updateTypeSuggestion() {
+    const value = qrText.value.trim();
+    const match = PAYLOAD_PATTERNS.find(p => p.re.test(value));
+    if (!match) {
+        typeSuggestion.hidden = true;
+        suggestionTarget = null;
+        return;
+    }
+    suggestionTarget = { ...match, value };
+    typeSuggestionText.textContent = match.label;
+    typeSuggestion.hidden = false;
 }
 
-function applyPreset(name) {
-    const preset = COLOR_PRESETS[name];
-    if (!preset) return;
-
-    fgColor.value = preset.fg;
-    bgColor.value = preset.bg;
-    gradientColor.value = preset.gradient;
-    useGradient.checked = preset.gradientOn;
-    updateGradientState();
-
-    document.querySelectorAll('.preset-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.preset === name);
-    });
-    scheduleRegenerate();
+function applyTypeSuggestion() {
+    if (!suggestionTarget) return;
+    const { target, value } = suggestionTarget;
+    if (target === 'phone') {
+        phoneNumber.value = value.replace(/^tel:/i, '');
+    } else if (target === 'email') {
+        emailTo.value = value.replace(/^mailto:/i, '').split('?')[0];
+    } else {
+        customPayload.value = value;
+    }
+    qrText.value = '';
+    updateCharacterCount();
+    typeSuggestion.hidden = true;
+    suggestionTarget = null;
+    activateTab(document.querySelector(`.tab[data-tab="${target}"]`));
 }
+
+// --- Settings Persistence (Design only, kein Inhalt) ---
+
+function saveSettings() {
+    if (suppressPersist) return;
+    try {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+            preset: currentPreset,
+            colorMode,
+            fg: fgColor.value,
+            bg: bgColor.value,
+            gradient: gradientColor.value,
+            gradientType: gradientType.value,
+            qrStyle: qrStyle.value,
+            finderStyle: finderStyle.value,
+            ecc: eccLevel.value,
+            quietZone: quietZone.value,
+            moduleScale: moduleScale.value,
+            pixelSize: pixelSize.value,
+            format: selectedFormat,
+            useBadge: useBadge.checked
+        }));
+    } catch (err) {
+        // localStorage nicht verfuegbar (z.B. private mode) - Persistenz still deaktivieren.
+    }
+}
+
+function restoreSettings() {
+    let saved = null;
+    try {
+        saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null');
+    } catch (err) {
+        return;
+    }
+    if (!saved) return;
+    suppressPersist = true;
+    if (saved.fg) fgColor.value = saved.fg;
+    if (saved.bg) bgColor.value = saved.bg;
+    if (saved.gradient) gradientColor.value = saved.gradient;
+    if (saved.gradientType) gradientType.value = saved.gradientType;
+    if (saved.qrStyle) qrStyle.value = saved.qrStyle;
+    if (saved.finderStyle) finderStyle.value = saved.finderStyle;
+    if (saved.ecc) eccLevel.value = saved.ecc;
+    if (saved.quietZone) quietZone.value = saved.quietZone;
+    if (saved.moduleScale) moduleScale.value = saved.moduleScale;
+    if (saved.pixelSize) pixelSize.value = saved.pixelSize;
+    if (typeof saved.useBadge === 'boolean') useBadge.checked = saved.useBadge;
+    if (saved.colorMode) setColorMode(saved.colorMode, { silent: true });
+    if (saved.preset) currentPreset = saved.preset;
+    if (saved.format) selectedFormat = saved.format;
+    suppressPersist = false;
+}
+
+// --- Format / Export ---
 
 function setSelectedFormat(format) {
     selectedFormat = format;
@@ -908,6 +1227,9 @@ function setSelectedFormat(format) {
     });
     downloadBtn.textContent = `Herunterladen (${format.toUpperCase()})`;
     formatHint.textContent = FORMAT_HINTS[format] || FORMAT_HINTS.png;
+    const vector = format === 'svg' || format === 'eps';
+    pixelSize.disabled = vector;
+    saveSettings();
 }
 
 function getHistory() {
@@ -954,7 +1276,58 @@ function recordExport(format) {
     renderHistory();
 }
 
+// --- Reset + Undo ---
+
+function captureSnapshot() {
+    const fields = [
+        qrText, plainText, wifiSsid, wifiPassword, emailTo, emailSubject, emailBody,
+        phoneNumber, smsPhone, smsMessage, vcardFirst, vcardLast, vcardOrg, vcardPhone,
+        vcardEmail, vcardUrl, paypalHandle, paypalAmount, customPayload,
+        wifiSecurity, eccLevel, pixelSize, quietZone, moduleScale, logoSize, badgeText,
+        fgColor, bgColor, gradientColor, gradientType, qrStyle, finderStyle
+    ];
+    return {
+        values: fields.map(f => f.value),
+        fields,
+        checks: [wifiHidden.checked, logoEnabled.checked, useBadge.checked],
+        tab: currentTab,
+        preset: currentPreset,
+        mode: colorMode,
+        format: selectedFormat,
+        logo: uploadedLogo,
+        logoLabel: logoName.textContent
+    };
+}
+
+function restoreSnapshot(snap) {
+    snap.fields.forEach((f, i) => { f.value = snap.values[i]; });
+    [wifiHidden.checked, logoEnabled.checked, useBadge.checked] = snap.checks;
+    uploadedLogo = snap.logo;
+    logoName.textContent = snap.logoLabel;
+    currentPreset = snap.preset;
+    setColorMode(snap.mode, { silent: true });
+    markPreset(snap.preset);
+    setSelectedFormat(snap.format);
+    activateTab(document.querySelector(`.tab[data-tab="${snap.tab}"]`));
+    updateCharacterCount();
+    updateLogoState();
+    updateBrandingSummary();
+    moduleScaleVal.textContent = `${moduleScale.value}%`;
+    logoSizeVal.textContent = `${logoSize.value}%`;
+    scheduleRender();
+}
+
+function showUndoToast() {
+    undoToast.hidden = false;
+    window.clearTimeout(undoTimer);
+    undoTimer = window.setTimeout(() => {
+        undoToast.hidden = true;
+        undoSnapshot = null;
+    }, 6000);
+}
+
 function resetApp() {
+    undoSnapshot = captureSnapshot();
     lastPayload = '';
     lastQr = null;
     lastOptions = null;
@@ -966,10 +1339,12 @@ function resetApp() {
     ].forEach(control => { control.value = ''; });
     wifiSecurity.value = 'WPA';
     wifiHidden.checked = false;
-    eccLevel.value = 'H';
+    eccLevel.value = 'auto';
     pixelSize.value = '512';
     quietZone.value = '4';
     moduleScale.value = '92';
+    moduleScaleVal.textContent = '92%';
+    gradientType.value = 'linear';
     logoSize.value = '20';
     logoSizeVal.textContent = '20%';
     logoEnabled.checked = false;
@@ -978,46 +1353,26 @@ function resetApp() {
     uploadedLogo = null;
     logoInput.value = '';
     logoName.textContent = 'Kein Logo ausgewaehlt';
-    applyPreset('neon');
-    setChoice('qrStyle', 'rounded');
-    setChoice('finderStyle', 'rounded');
+    typeSuggestion.hidden = true;
+    applyStylePreset('orchid');
     setSelectedFormat('png');
     updateCharacterCount();
-    updatePixelSizeState();
     updateLogoState();
-    updateColorLabels();
-    qrcodeDiv.innerHTML = '<div class="empty-state">QR-Code wird hier angezeigt</div>';
-    downloadBtn.hidden = true;
-    shareBtn.hidden = true;
+    activateTab(document.querySelector('.tab[data-tab="link"]'));
     clearError();
-    setStatus('Warte auf Inhalt', 'Generiere einen QR-Code fuer die Download-Optionen.', false);
+    showUndoToast();
 }
 
-initTabs();
-document.body.dataset.theme = 'orchid';
-updateCharacterCount();
-updateGradientState();
-updateLogoState();
-updatePixelSizeState();
-updateColorLabels();
-setSelectedFormat('png');
-renderHistory();
-setStatus('Warte auf Inhalt', 'Generiere einen QR-Code fuer die Download-Optionen.', false);
+// --- Event Listeners ---
 
-generateBtn.addEventListener('click', generateQRCode);
+function updateCharacterCount() {
+    charCount.textContent = String(qrText.value.length);
+}
 
 qrText.addEventListener('input', () => {
     updateCharacterCount();
-    scheduleRegenerate();
-});
-
-[qrText, phoneNumber, paypalHandle, customPayload].forEach(control => {
-    control.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            generateQRCode();
-        }
-    });
+    updateTypeSuggestion();
+    scheduleRender();
 });
 
 [
@@ -1036,10 +1391,14 @@ qrText.addEventListener('input', () => {
     vcardUrl,
     paypalHandle,
     paypalAmount,
-    customPayload
+    customPayload,
+    wifiSsid,
+    wifiPassword,
+    wifiSecurity,
+    wifiHidden
 ].forEach(control => {
-    control.addEventListener('input', scheduleRegenerate);
-    control.addEventListener('change', scheduleRegenerate);
+    control.addEventListener('input', scheduleRender);
+    control.addEventListener('change', scheduleRender);
 });
 
 document.querySelectorAll('.clear-field').forEach(button => {
@@ -1048,18 +1407,20 @@ document.querySelectorAll('.clear-field').forEach(button => {
         if (!target) return;
         target.value = '';
         updateCharacterCount();
+        updateTypeSuggestion();
         target.focus();
-        scheduleRegenerate();
+        scheduleRender();
     });
 });
 
-document.querySelectorAll('.choice-btn').forEach(button => {
-    button.addEventListener('click', () => setChoice(button.dataset.control, button.dataset.value));
-});
-
 resetBtn.addEventListener('click', resetApp);
-previewResetBtn.addEventListener('click', resetApp);
-quickResetBtn.addEventListener('click', resetApp);
+
+undoResetBtn.addEventListener('click', () => {
+    if (!undoSnapshot) return;
+    restoreSnapshot(undoSnapshot);
+    undoSnapshot = null;
+    undoToast.hidden = true;
+});
 
 historyToggle.addEventListener('click', () => {
     historyDrawer.hidden = !historyDrawer.hidden;
@@ -1071,45 +1432,37 @@ clearHistoryBtn.addEventListener('click', () => {
     renderHistory();
 });
 
-[wifiSsid, wifiPassword, wifiSecurity, wifiHidden].forEach(control => {
-    control.addEventListener('input', scheduleRegenerate);
-    control.addEventListener('change', scheduleRegenerate);
-});
-
-[
-    fgColor,
-    bgColor,
-    gradientColor,
-    gradientType,
-    transparentBackground,
-    qrStyle,
-    finderStyle,
-    eccLevel,
-    pixelSize,
-    quietZone,
-    moduleScale,
-    logoSize,
-    logoEnabled,
-    useBadge,
-    badgeText
-].forEach(control => {
-    control.addEventListener('input', scheduleRegenerate);
-    control.addEventListener('change', scheduleRegenerate);
-});
-
 [fgColor, bgColor, gradientColor].forEach(control => {
-    control.addEventListener('input', updateColorLabels);
-    control.addEventListener('change', updateColorLabels);
+    control.addEventListener('input', () => {
+        markPreset('custom');
+        scheduleRender();
+    });
 });
 
-useGradient.addEventListener('change', () => {
-    updateGradientState();
-    scheduleRegenerate();
+[qrStyle, finderStyle].forEach(control => {
+    control.addEventListener('change', () => {
+        markPreset('custom');
+        scheduleRender();
+    });
 });
+
+[eccLevel, quietZone, gradientType, moduleScale, logoSize, badgeText, pixelSize].forEach(control => {
+    control.addEventListener('input', scheduleRender);
+    control.addEventListener('change', scheduleRender);
+});
+
+eccLevel.addEventListener('change', updateEccNote);
+
+useBadge.addEventListener('change', () => {
+    updateBrandingSummary();
+    scheduleRender();
+});
+
+badgeText.addEventListener('input', updateBrandingSummary);
 
 logoEnabled.addEventListener('change', () => {
     updateLogoState();
-    scheduleRegenerate();
+    scheduleRender();
 });
 
 logoSize.addEventListener('input', (e) => {
@@ -1120,15 +1473,22 @@ moduleScale.addEventListener('input', (e) => {
     moduleScaleVal.textContent = `${e.target.value}%`;
 });
 
-pixelSize.addEventListener('input', updatePixelSizeState);
-pixelSize.addEventListener('change', updatePixelSizeState);
-
-document.querySelectorAll('.preset-btn').forEach(button => {
-    button.addEventListener('click', () => applyPreset(button.dataset.preset));
+document.querySelectorAll('.mode-btn').forEach(button => {
+    button.addEventListener('click', () => setColorMode(button.dataset.colorMode));
 });
 
 document.querySelectorAll('.format-btn').forEach(button => {
     button.addEventListener('click', () => setSelectedFormat(button.dataset.format));
+});
+
+typeSuggestionBtn.addEventListener('click', applyTypeSuggestion);
+
+// Cmd/Ctrl+S laedt den aktuellen QR-Code herunter
+document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        if (!downloadBtn.disabled) downloadBtn.click();
+    }
 });
 
 // Logo Upload with Validation
@@ -1137,7 +1497,8 @@ logoInput.addEventListener('change', (e) => {
     if (!file) {
         uploadedLogo = null;
         logoName.textContent = 'Kein Logo ausgewaehlt';
-        scheduleRegenerate();
+        updateBrandingSummary();
+        scheduleRender();
         return;
     }
 
@@ -1147,7 +1508,8 @@ logoInput.addEventListener('change', (e) => {
         logoInput.value = '';
         uploadedLogo = null;
         logoName.textContent = 'Kein Logo ausgewaehlt';
-        scheduleRegenerate();
+        updateBrandingSummary();
+        scheduleRender();
         return;
     }
 
@@ -1157,7 +1519,7 @@ logoInput.addEventListener('change', (e) => {
             showError('Fehler beim Lesen der Datei.');
             uploadedLogo = null;
             logoName.textContent = 'Kein Logo ausgewaehlt';
-            scheduleRegenerate();
+            scheduleRender();
         };
         reader.onload = (event) => {
             const img = new Image();
@@ -1165,7 +1527,7 @@ logoInput.addEventListener('change', (e) => {
                 showError('Fehler beim Laden des Bildes. Datei ist moeglicherweise beschaedigt.');
                 uploadedLogo = null;
                 logoName.textContent = 'Kein Logo ausgewaehlt';
-                scheduleRegenerate();
+                scheduleRender();
             };
             img.onload = () => {
                 const dimValidation = validateImageDimensions(img);
@@ -1174,15 +1536,15 @@ logoInput.addEventListener('change', (e) => {
                     logoInput.value = '';
                     uploadedLogo = null;
                     logoName.textContent = 'Kein Logo ausgewaehlt';
-                    scheduleRegenerate();
+                    scheduleRender();
                     return;
                 }
                 clearError();
                 logoEnabled.checked = true;
-                updateLogoState();
                 uploadedLogo = img;
                 logoName.textContent = file.name;
-                scheduleRegenerate();
+                updateLogoState();
+                scheduleRender();
             };
             img.src = event.target.result;
         };
@@ -1191,7 +1553,7 @@ logoInput.addEventListener('change', (e) => {
         showError('Unerwarteter Fehler beim Datei-Upload.');
         uploadedLogo = null;
         logoName.textContent = 'Kein Logo ausgewaehlt';
-        scheduleRegenerate();
+        scheduleRender();
     }
 });
 
@@ -1208,7 +1570,7 @@ function getTimestampSuffix() {
 downloadBtn.addEventListener('click', async () => {
     try {
         if (!currentCanvas || !lastQr || !lastOptions) {
-            showError('Bitte generiere zuerst einen QR-Code.');
+            showError('Bitte gib zuerst einen Inhalt ein.');
             return;
         }
 
@@ -1244,7 +1606,7 @@ downloadBtn.addEventListener('click', async () => {
 shareBtn.addEventListener('click', async () => {
     try {
         if (!lastPayload || !currentCanvas) {
-            showError('Bitte generiere zuerst einen QR-Code.');
+            showError('Bitte gib zuerst einen Inhalt ein.');
             return;
         }
 
@@ -1257,8 +1619,25 @@ shareBtn.addEventListener('click', async () => {
         }
 
         await navigator.clipboard.writeText(lastPayload);
-        setStatus('Inhalt kopiert', 'Der QR-Inhalt wurde in die Zwischenablage kopiert.', true);
+        setStatus('ok', 'Inhalt kopiert', 'Der QR-Inhalt wurde in die Zwischenablage kopiert.');
     } catch (err) {
         showError('Teilen ist in diesem Browser nicht verfuegbar.');
     }
 });
+
+// --- Init ---
+
+document.body.dataset.theme = 'orchid';
+restoreSettings();
+initTabs();
+initStylePresets();
+initColorSwatches();
+setColorMode(colorMode, { silent: true });
+markPreset(currentPreset);
+updateCharacterCount();
+updateLogoState();
+updateBrandingSummary();
+moduleScaleVal.textContent = `${moduleScale.value}%`;
+setSelectedFormat(selectedFormat);
+renderHistory();
+renderPreview();

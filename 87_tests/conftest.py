@@ -1,8 +1,9 @@
 """Pytest configuration for QR Code Maker UI tests."""
 
-import os
 import pytest
 from pathlib import Path
+
+PRIMARY_TYPES = ("link", "wifi", "text")
 
 
 @pytest.fixture(scope="session")
@@ -19,3 +20,17 @@ def qr_page(page, base_url):
     page.goto(base_url)
     page.wait_for_load_state("domcontentloaded")
     return page
+
+
+@pytest.fixture(scope="function")
+def select_type(qr_page):
+    """Select a content type: primary types via chip, secondary via 'Mehr' menu."""
+
+    def _select(tab):
+        if tab in PRIMARY_TYPES:
+            qr_page.locator(f'.tab[data-tab="{tab}"]').click()
+        else:
+            qr_page.locator("#moreTypesBtn").click()
+            qr_page.locator(f'.tab[data-tab="{tab}"]').click()
+
+    return _select

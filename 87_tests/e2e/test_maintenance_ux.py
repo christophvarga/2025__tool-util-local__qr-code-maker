@@ -1,55 +1,50 @@
 """
-E2E UI Tests for QR Code Maker - Maintenance & UX Sprint.
+E2E UI Tests for QR Code Maker - Maintenance & UX.
 
 Tests cover:
 - Download filename timestamp format
-- Mobile viewport rendering
-- Error handling for empty inputs
+- Mobile viewport rendering (sticky preview)
+- Idle hints for empty inputs (live mode)
 - Valid URL QR code generation
-- Additional edge cases
+- Reset + Undo toast
 """
 
 import re
-import pytest
 from playwright.sync_api import expect
 
 
 class TestDownloadFilenameTimestamp:
     """Tests for download filename timestamp feature."""
 
-    def test_download_button_has_download_attribute(self, qr_page):
-        """Download button should be present and have correct text."""
-        textarea = qr_page.locator("#qrText")
-        textarea.fill("https://example.com")
-        qr_page.locator("#generateBtn").click()
+    def test_download_button_enabled_after_input(self, qr_page):
+        """Download button should be enabled once content is rendered."""
+        qr_page.locator("#qrText").fill("https://example.com")
 
         download_btn = qr_page.locator("#downloadBtn")
-        expect(download_btn).to_be_visible()
+        expect(download_btn).to_be_enabled()
 
     def test_download_filename_has_timestamp(self, qr_page):
         """Download link filename should contain timestamp in YYYYMMDD-HHMMSS format."""
-        textarea = qr_page.locator("#qrText")
-        textarea.fill("https://example.com")
-        qr_page.locator("#generateBtn").click()
+        qr_page.locator("#qrText").fill("https://example.com")
+        download_btn = qr_page.locator("#downloadBtn")
+        expect(download_btn).to_be_enabled()
 
-        # Intercept the download to capture the filename
         with qr_page.expect_download() as download_info:
-            qr_page.locator("#downloadBtn").click()
+            download_btn.click()
         download = download_info.value
 
         filename = download.suggested_filename
-        # Expect format: qrcode-YYYYMMDD-HHMMSS.png
         assert re.match(r"^qrcode-\d{8}-\d{6}\.png$", filename), \
             f"Expected timestamp filename, got: {filename}"
 
     def test_download_filename_starts_with_qrcode(self, qr_page):
         """Download filename should start with 'qrcode-'."""
-        textarea = qr_page.locator("#qrText")
-        textarea.fill("timestamp test")
-        qr_page.locator("#generateBtn").click()
+        qr_page.locator("#qrText").fill("timestamp test")
+        download_btn = qr_page.locator("#downloadBtn")
+        expect(download_btn).to_be_enabled()
 
         with qr_page.expect_download() as download_info:
-            qr_page.locator("#downloadBtn").click()
+            download_btn.click()
         download = download_info.value
 
         assert download.suggested_filename.startswith("qrcode-"), \
@@ -57,12 +52,12 @@ class TestDownloadFilenameTimestamp:
 
     def test_download_filename_ends_with_png(self, qr_page):
         """Download filename should end with '.png'."""
-        textarea = qr_page.locator("#qrText")
-        textarea.fill("png extension test")
-        qr_page.locator("#generateBtn").click()
+        qr_page.locator("#qrText").fill("png extension test")
+        download_btn = qr_page.locator("#downloadBtn")
+        expect(download_btn).to_be_enabled()
 
         with qr_page.expect_download() as download_info:
-            qr_page.locator("#downloadBtn").click()
+            download_btn.click()
         download = download_info.value
 
         assert download.suggested_filename.endswith(".png"), \
@@ -81,8 +76,8 @@ class TestMobileViewport:
         heading = qr_page.locator("h1")
         expect(heading).to_be_visible()
 
-        generate_btn = qr_page.locator("#generateBtn")
-        expect(generate_btn).to_be_visible()
+        download_btn = qr_page.locator("#downloadBtn")
+        expect(download_btn).to_be_visible()
 
     def test_mobile_viewport_has_viewport_meta(self, qr_page):
         """Page should have viewport meta tag for mobile responsiveness."""
@@ -98,57 +93,82 @@ class TestMobileViewport:
         qr_page.reload()
         qr_page.wait_for_load_state("domcontentloaded")
 
-        textarea = qr_page.locator("#qrText")
-        textarea.fill("Mobile test")
-        qr_page.locator("#generateBtn").click()
+        qr_page.locator("#qrText").fill("Mobile test")
 
-        canvas = qr_page.locator("#qrcode canvas")
+        canvas = qr_page.locator("#qrcode canvas:not(.ghost)")
         expect(canvas).to_be_visible()
 
 
-class TestErrorHandling:
-    """Tests for error handling scenarios."""
+class TestIdleHints:
+    """Tests for live-mode idle hints (replaces error banners for empty input)."""
 
-    def test_empty_input_shows_error(self, qr_page):
-        """Clicking generate with empty input should show an error message."""
-        generate_btn = qr_page.locator("#generateBtn")
-        generate_btn.click()
+    def test_empty_input_shows_idle_hint(self, qr_page):
+        """Empty input should show idle status, not an error banner."""
+        expect(qr_page.locator("#statusCard")).to_have_attribute("data-state", "idle")
+        expect(qr_page.locator("#errorMessage")).to_be_hidden()
+        expect(qr_page.locator("#downloadBtn")).to_be_disabled()
 
-        error = qr_page.locator("#errorMessage")
-        expect(error).to_be_visible()
-        expect(error).not_to_be_empty()
+    def test_empty_wifi_ssid_shows_hint(self, qr_page):
+        """Empty WiFi SSID should show a hint in the status card."""
+        qr_page.locator('.tab[data-tab="wifi"]').click()
 
-    def test_empty_wifi_ssid_shows_error(self, qr_page):
-        """Empty WiFi SSID should show an error."""
-        wifi_tab = qr_page.locator('.tab[data-tab="wifi"]')
-        wifi_tab.click()
+        expect(qr_page.locator("#statusSubtext")).to_contain_text("SSID")
 
-        qr_page.locator("#generateBtn").click()
+    def test_more_tab_no_input_shows_hint(self, qr_page, select_type):
+        """Custom content mode with no input should show a hint."""
+        select_type("more")
 
-        error = qr_page.locator("#errorMessage")
-        expect(error).to_be_visible()
+        expect(qr_page.locator("#statusCard")).to_have_attribute("data-state", "idle")
+        expect(qr_page.locator("#downloadBtn")).to_be_disabled()
 
-    def test_error_message_hidden_after_valid_input(self, qr_page):
-        """Error message should hide after successful generation."""
-        qr_page.locator("#generateBtn").click()
-        error = qr_page.locator("#errorMessage")
-        expect(error).to_be_visible()
 
-        textarea = qr_page.locator("#qrText")
-        textarea.fill("https://example.com")
-        qr_page.locator("#generateBtn").click()
+class TestResetUndo:
+    """Tests for single reset + undo toast."""
 
-        expect(error).to_be_hidden()
+    def test_reset_clears_content(self, qr_page):
+        """Reset should clear inputs and show the undo toast."""
+        qr_page.locator("#qrText").fill("https://example.com")
+        expect(qr_page.locator("#downloadBtn")).to_be_enabled()
 
-    def test_more_tab_no_input_shows_error(self, qr_page):
-        """Custom content mode with no input should show error."""
-        more_tab = qr_page.locator('.tab[data-tab="more"]')
-        more_tab.click()
+        qr_page.locator("#resetBtn").click()
 
-        qr_page.locator("#generateBtn").click()
+        expect(qr_page.locator("#qrText")).to_have_value("")
+        expect(qr_page.locator("#downloadBtn")).to_be_disabled()
+        expect(qr_page.locator("#undoToast")).to_be_visible()
 
-        error = qr_page.locator("#errorMessage")
-        expect(error).to_be_visible()
+    def test_undo_restores_content(self, qr_page):
+        """Undo should restore the previous content."""
+        qr_page.locator("#qrText").fill("https://example.com")
+        expect(qr_page.locator("#downloadBtn")).to_be_enabled()
+
+        qr_page.locator("#resetBtn").click()
+        qr_page.locator("#undoResetBtn").click()
+
+        expect(qr_page.locator("#qrText")).to_have_value("https://example.com")
+        expect(qr_page.locator("#downloadBtn")).to_be_enabled()
+
+
+class TestTypeSuggestion:
+    """Tests for payload auto-detection in the link field."""
+
+    def test_wifi_payload_suggests_switch(self, qr_page):
+        """Pasting a WIFI: payload should surface a suggestion."""
+        qr_page.locator("#qrText").fill("WIFI:T:WPA;S:Test;P:pw;;")
+
+        expect(qr_page.locator("#typeSuggestion")).to_be_visible()
+
+    def test_suggestion_apply_switches_type(self, qr_page):
+        """Applying a tel: suggestion should switch to the phone type."""
+        qr_page.locator("#qrText").fill("tel:+436601234567")
+        qr_page.locator("#typeSuggestionBtn").click()
+
+        expect(qr_page.locator("#phoneTab")).to_have_class(re.compile(r"active"))
+        expect(qr_page.locator("#phoneNumber")).to_have_value("+436601234567")
+
+    def test_normal_url_no_suggestion(self, qr_page):
+        """A normal URL should not trigger a suggestion."""
+        qr_page.locator("#qrText").fill("https://example.com")
+        expect(qr_page.locator("#typeSuggestion")).to_be_hidden()
 
 
 class TestQRCodeGeneration:
@@ -156,21 +176,17 @@ class TestQRCodeGeneration:
 
     def test_qr_code_generated_for_valid_url(self, qr_page):
         """Valid URL should produce a QR code canvas."""
-        textarea = qr_page.locator("#qrText")
-        textarea.fill("https://varga.media")
-        qr_page.locator("#generateBtn").click()
+        qr_page.locator("#qrText").fill("https://varga.media")
 
-        canvas = qr_page.locator("#qrcode canvas")
+        canvas = qr_page.locator("#qrcode canvas:not(.ghost)")
         expect(canvas).to_be_visible()
 
     def test_qr_code_generated_for_long_text(self, qr_page):
         """Long text within limit should generate QR code."""
         long_text = "A" * 500
-        textarea = qr_page.locator("#qrText")
-        textarea.fill(long_text)
-        qr_page.locator("#generateBtn").click()
+        qr_page.locator("#qrText").fill(long_text)
 
-        canvas = qr_page.locator("#qrcode canvas")
+        canvas = qr_page.locator("#qrcode canvas:not(.ghost)")
         expect(canvas).to_be_visible()
 
     def test_timestamp_function_format(self, qr_page):
