@@ -44,7 +44,7 @@ commands:
   test: null
   test_report: "make test-report"
   lint: null
-  smoke: null
+  smoke: "curl -s -o /dev/null -w '%{http_code}' --max-time 10 https://qr.varga.media"  # 302 hinter CF Access = OK
 
 # === DEPLOYMENT ===
 deployment:
