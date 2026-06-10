@@ -1085,10 +1085,12 @@ function initColorSwatches() {
         btn.className = 'pair-swatch';
         btn.dataset.swatch = name;
         btn.title = name;
-        btn.style.background = swatch.mode === 'gradient'
+        // Zweigeteilter Dot: oben Hintergrund-, unten Vordergrundfarbe —
+        // so bleiben auch dunkle Paletten auf dunklem UI sichtbar.
+        const fgPart = swatch.mode === 'gradient'
             ? `linear-gradient(135deg, ${swatch.gradient}, ${swatch.fg})`
-            : swatch.fg;
-        btn.style.borderColor = swatch.bg;
+            : `linear-gradient(135deg, ${swatch.fg}, ${swatch.fg})`;
+        btn.style.background = `linear-gradient(135deg, ${swatch.bg} 0%, ${swatch.bg} 38%, transparent 38%), ${fgPart}`;
         btn.addEventListener('click', () => {
             fgColor.value = swatch.fg;
             bgColor.value = swatch.bg;
