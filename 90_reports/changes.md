@@ -1,6 +1,37 @@
 # Changes - QR Code Maker
 
 
+## [2026-06-11] Mobile/Spacing-Feinschliff v2.1.0 (Screenshot-verifiziert)
+
+### Aenderungen
+- **Mobile-Layout repariert:** Sticky-Leiste oben zeigt nur noch kompakten Live-QR (76-92px) + Scan-Status; der komplette Export-Block wandert ans Seitenende (vorher fuellte er den ganzen ersten Screen)
+- **Sticky-Fix:** `overflow: hidden` auf `.app-shell` brach `position: sticky` - auf Mobile/Tablet `overflow: visible`, Panel via `display: contents` aufgeloest
+- **Kompakter Mobile-Header:** einzeilig, Subtitle ausgeblendet, kleinere Brand-Mark
+- **Tablet:** Stil-Presets 6-spaltig (vorher 3 riesige Kacheln); Mobile bleibt 3-spaltig
+- **Mobile-Polish:** Farbmodus-Segment full-width, Format-Grid 4-spaltig, Undo-Toast full-width
+- **Verifikation:** Playwright-Screenshots Desktop 1440 / Tablet 820 / Mobile 375 (top, gescrollt, mit Inhalt); 94 E2E-Tests gruen
+- Asset-Version auf v2.1.0 (Cache-Bust)
+
+---
+
+
+## [2026-06-11 00:40] Session 20260611-004000
+
+### Commits
+00b115a chore(docs): Session-Doku v2.0.1 + gitignore fuer Deploy-Worktrees/Session-Locks
+1a7eba0 fix(ci): deploy-trigger auf local-backend Agent umstellen (image bash statt alpine)
+6dfcbc3 feat(ui): SOTA-Redesign v2.0.0 - Live-Preview, 3-Ebenen-UX, Stil-Presets, Scan-Check
+
+### Staged Changes
+- Keine staged Changes
+
+### Unstaged Changes
+00_infos/llm-context.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+---
+
+
 ## [2026-06-11 00:36] Session 20260611-003611
 
 ### Commits
