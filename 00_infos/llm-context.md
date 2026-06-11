@@ -1,6 +1,6 @@
 # QR Code Maker - LLM Context
 
-> Version: 2.3.1
+> Version: 2.4.0
 > Stand: 11.06.2026
 > Status: **FEATURE-COMPLETE**
 
@@ -30,6 +30,7 @@ Lokales und live verfuegbares QR-Code-Generator-Tool als standalone Web-App. Lae
 | QR-Code Styles (klassisch, abgerundet, Punkte, classy) | Fertig (v1.3.0) |
 | SEO + Agent-Discoverability (Meta/OG/JSON-LD, robots.txt, sitemap.xml, llms.txt, favicon.svg) | Fertig (v2.3.0) |
 | og:image Link-Preview (1200x630, og-template.html als Quelle, twitter summary_large_image) | Fertig (v2.3.1) |
+| Self-hosted Fonts + QR-Lib (kein Google Fonts/CDN, CSP nur self+analytics) + Impressum-Footer | Fertig (v2.4.0) |
 | Finder/Ecken-Styles (klassisch, abgerundet, Kreise) | Fertig (v1.3.0) |
 | UI Themes & Farb-Presets | Fertig (v1.3.0) |
 | Farbanpassung (Vorder-/Hintergrund) | Fertig |

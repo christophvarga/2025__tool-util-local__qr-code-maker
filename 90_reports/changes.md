@@ -1,6 +1,16 @@
 # Changes - QR Code Maker
 
 
+## [2026-06-11] Privacy-Hardening + Impressum (v2.4.0)
+
+### Aenderungen
+- Google Fonts self-hosted (fonts/fonts.css + 4 woff2 latin/latin-ext), qrcode-generator 1.4.4 vendored (vendor/, SRI-Hash gegen CDN verifiziert)
+- CSP verschaerft (index.html + nginx.conf): script-src self+analytics, font-src self, kein jsdelivr/googleapis mehr
+- Legal-Footer: (c) Christoph Varga e.U. + Links auf varga.media/impressum + /datenschutz (zentrale Offenlegung, par. 5 ECG)
+- Neue Guards: 87_tests/e2e/test_privacy_locality.py (7 Tests: keine Drittanbieter-Hosts, keine Netzwerk-APIs in script.js, CSP, Footer, Dockerfile)
+- Verify: pytest 87_tests/ -> 112 passed
+
+
 ## [2026-06-11] og:image Link-Previews (v2.3.1)
 
 ### Aenderungen

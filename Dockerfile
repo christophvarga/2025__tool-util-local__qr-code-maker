@@ -15,6 +15,8 @@ COPY robots.txt /usr/share/nginx/html/
 COPY sitemap.xml /usr/share/nginx/html/
 COPY llms.txt /usr/share/nginx/html/
 COPY og-image.png /usr/share/nginx/html/
+COPY fonts/ /usr/share/nginx/html/fonts/
+COPY vendor/ /usr/share/nginx/html/vendor/
 
 EXPOSE 80
 
