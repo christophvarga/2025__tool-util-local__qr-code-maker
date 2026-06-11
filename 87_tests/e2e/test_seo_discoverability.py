@@ -33,12 +33,13 @@ def test_canonical_url(index_html):
 
 
 def test_open_graph_tags(index_html):
-    for prop in ("og:type", "og:url", "og:title", "og:description", "og:site_name"):
+    for prop in ("og:type", "og:url", "og:title", "og:description", "og:site_name", "og:image"):
         assert f'property="{prop}"' in index_html, f"Open-Graph-Tag {prop} fehlt"
 
 
 def test_twitter_card(index_html):
-    assert 'name="twitter:card"' in index_html
+    assert 'content="summary_large_image"' in index_html
+    assert 'name="twitter:image"' in index_html
 
 
 def test_json_ld_webapplication(index_html):
@@ -79,5 +80,11 @@ def test_llms_txt():
 
 def test_dockerfile_ships_discovery_files():
     dockerfile = (PROJECT_ROOT / "Dockerfile").read_text(encoding="utf-8")
-    for fname in ("favicon.svg", "robots.txt", "sitemap.xml", "llms.txt"):
+    for fname in ("favicon.svg", "robots.txt", "sitemap.xml", "llms.txt", "og-image.png"):
         assert f"COPY {fname}" in dockerfile, f"Dockerfile kopiert {fname} nicht"
+
+
+def test_og_image_present():
+    og = PROJECT_ROOT / "og-image.png"
+    assert og.is_file() and og.stat().st_size > 10_000
+    assert (PROJECT_ROOT / "og-template.html").is_file(), "Template als Quelle fehlt"

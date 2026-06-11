@@ -1,6 +1,15 @@
 # Changes - QR Code Maker
 
 
+## [2026-06-11] og:image Link-Previews (v2.3.1)
+
+### Aenderungen
+- og-image.png (1200x630) im App-Design, gerendert aus og-template.html (Playwright)
+- index.html: og:image/-width/-height/-alt, twitter:card -> summary_large_image, twitter:image
+- Dockerfile: COPY og-image.png
+- Tests erweitert: og:image in OG-Tags, twitter large card, Datei- + Dockerfile-Checks (11 passed)
+
+
 ## [2026-06-11] Session SEO + Agent-Discoverability (v2.3.0)
 
 ### Aenderungen
