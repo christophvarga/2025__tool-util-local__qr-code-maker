@@ -1,0 +1,7 @@
+# qr.varga.media — kostenloser client-seitiger QR-Code-Generator.
+# Crawling ist fuer alle Bots erlaubt, inkl. KI-Agents (siehe auch /llms.txt).
+
+User-agent: *
+Allow: /
+
+Sitemap: https://qr.varga.media/sitemap.xml

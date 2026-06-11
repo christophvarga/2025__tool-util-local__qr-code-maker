@@ -1,6 +1,16 @@
 # Changes - QR Code Maker
 
 
+## [2026-06-11] Session SEO + Agent-Discoverability (v2.3.0)
+
+### Aenderungen
+- index.html: Title, meta description, robots, theme-color, canonical, Open Graph, Twitter Card, JSON-LD (schema.org WebApplication), favicon.svg statt leerem data:-Icon
+- Neu: robots.txt (allow all + Sitemap-Referenz), sitemap.xml, llms.txt (Agent-Kontext nach llmstxt.org), favicon.svg
+- Dockerfile: COPY der 4 neuen Discovery-Dateien
+- Tests: 87_tests/e2e/test_seo_discoverability.py (10 statische Checks), Titel-Assertion in test_qr_code_ui.py angepasst
+- Verify: pytest 87_tests/ -> 104 passed
+
+
 ## [2026-06-11 09:06] Session 20260611-090620
 
 ### Commits

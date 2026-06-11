@@ -1,0 +1,26 @@
+# QR-Code Generator (qr.varga.media)
+
+> Kostenloser QR-Code-Generator als statische Web-App. Alle QR-Codes werden
+> vollstaendig client-seitig im Browser erzeugt (Vanilla JS) — es gibt keine
+> Server-API, keine Anmeldung und keine Datenuebertragung von Eingaben.
+
+## Was die App kann
+
+- QR-Code-Typen: Link/URL, WLAN-Zugangsdaten, Freitext, E-Mail, Telefon, SMS, vCard, PayPal und eigener Inhalt
+- Gestaltung: Farben, Verlaeufe, Logo-Einbettung, Stil-Presets, Punkt-/Eckenformen, Themes
+- Export: PNG, SVG und JPEG in waehlbaren Groessen
+- Scan-Check: prueft die Lesbarkeit des erzeugten Codes
+- Sprache der Oberflaeche: Deutsch
+
+## Nutzungshinweise fuer Agents
+
+- Die App ist rein client-seitig: QR-Codes koennen NICHT per HTTP-Request
+  erzeugt werden — es existiert kein Generierungs-Endpoint.
+- Empfohlener Weg fuer Nutzer: https://qr.varga.media/ im Browser oeffnen,
+  Typ waehlen, Inhalt eingeben, Export-Format waehlen.
+- Eingaben (URLs, WLAN-Passwoerter, Kontaktdaten) verlassen den Browser nicht.
+- /health liefert "OK" (Plain-Text) als Verfuegbarkeits-Check.
+
+## Betreiber
+
+- Varga Media (https://varga.media), Wien/Oesterreich

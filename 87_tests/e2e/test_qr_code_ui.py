@@ -17,7 +17,7 @@ class TestPageLoad:
 
     def test_page_title(self, qr_page):
         """Page should have correct title."""
-        expect(qr_page).to_have_title("QR-Code Generator")
+        expect(qr_page).to_have_title("QR-Code Generator – kostenlos QR-Codes erstellen | varga.media")
 
     def test_heading_visible(self, qr_page):
         """Main heading should be visible."""
