@@ -497,6 +497,25 @@ function paintLightArea(ctx, x, y, width, height, radius, options) {
     ctx.restore();
 }
 
+// Freizuhaltende Mitte-Zone (Badge/Logo-Matte) in Pixelkoordinaten.
+// Module, die diese Zone schneiden, werden uebersprungen statt von der
+// weissen Matte angeschnitten zu werden.
+function getCenterClearRect(actualSize, options, logoAspect) {
+    const hasLogo = options.logoEnabled && options.logoSrc;
+    if (!hasLogo && !options.useBadge) return null;
+    const targetSize = actualSize * options.logoSize;
+    const padding = Math.max(8, actualSize * 0.018);
+    const w = targetSize + padding * 2;
+    const h = (hasLogo && logoAspect) ? targetSize * logoAspect + padding * 2 : w;
+    return { x: (actualSize - w) / 2, y: (actualSize - h) / 2, w, h };
+}
+
+function cellIntersectsRect(x, y, cellSize, rect) {
+    return Boolean(rect)
+        && x + cellSize > rect.x && x < rect.x + rect.w
+        && y + cellSize > rect.y && y < rect.y + rect.h;
+}
+
 function isFinderZone(row, col, moduleCount) {
     const inTop = row < 7;
     const inBottom = row >= moduleCount - 7;
@@ -618,10 +637,16 @@ function renderToCanvas(qr, options) {
     const fillStyle = getModuleFill(ctx, actualSize, options);
     ctx.fillStyle = fillStyle;
 
+    const logoAspect = uploadedLogo ? uploadedLogo.height / uploadedLogo.width : null;
+    const clearRect = getCenterClearRect(actualSize, options, logoAspect);
+
     for (let row = 0; row < moduleCount; row++) {
         for (let col = 0; col < moduleCount; col++) {
             if (!qr.isDark(row, col) || isFinderZone(row, col, moduleCount)) continue;
-            drawModule(ctx, offset + col * cellSize, offset + row * cellSize, cellSize, options);
+            const px = offset + col * cellSize;
+            const py = offset + row * cellSize;
+            if (cellIntersectsRect(px, py, cellSize, clearRect)) continue;
+            drawModule(ctx, px, py, cellSize, options);
         }
     }
 
@@ -706,10 +731,15 @@ function buildSvg(qr, options) {
         parts.push(svgRect(0, 0, size, size, 0, options.bgColor));
     }
 
+    const clearRect = getCenterClearRect(size, options, null);
+
     for (let row = 0; row < moduleCount; row++) {
         for (let col = 0; col < moduleCount; col++) {
             if (!qr.isDark(row, col) || isFinderZone(row, col, moduleCount)) continue;
-            parts.push(svgModule(offset + col * cellSize, offset + row * cellSize, cellSize, options, fill));
+            const px = offset + col * cellSize;
+            const py = offset + row * cellSize;
+            if (cellIntersectsRect(px, py, cellSize, clearRect)) continue;
+            parts.push(svgModule(px, py, cellSize, options, fill));
         }
     }
 

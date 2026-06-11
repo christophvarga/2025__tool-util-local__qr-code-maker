@@ -1,6 +1,26 @@
 # Changes - QR Code Maker
 
 
+## [2026-06-11 09:06] Session 20260611-090620
+
+### Commits
+3cde4a4 chore(docs): Session-Close v2.2.1 - Kontext-Adapter sync
+d5be442 feat(ui): Visuelles Redesign v2.2.0 'Fine Print Atelier'
+e118777 fix(ui): Mobile-Layout + Spacing-Feinschliff v2.1.0
+00b115a chore(docs): Session-Doku v2.0.1 + gitignore fuer Deploy-Worktrees/Session-Locks
+1a7eba0 fix(ci): deploy-trigger auf local-backend Agent umstellen (image bash statt alpine)
+6dfcbc3 feat(ui): SOTA-Redesign v2.0.0 - Live-Preview, 3-Ebenen-UX, Stil-Presets, Scan-Check
+
+### Staged Changes
+- Keine staged Changes
+
+### Unstaged Changes
+00_infos/llm-context.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+---
+
+
 ## [2026-06-11 01:37] Session 20260611-013726
 
 ### Commits
