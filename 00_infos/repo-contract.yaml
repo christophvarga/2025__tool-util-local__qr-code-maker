@@ -1,7 +1,7 @@
 # repo-contract.yaml — Maschinenlesbarer Vertrag (Kanon v2)
 # Generiert: 2026-03-28 | Reviewed: 2026-05-22 | Schema: v2.0
 
-contract_version: "2.0"
+contract_version: "1.0"
 
 # === IDENTITAET ===
 repo:
@@ -39,9 +39,11 @@ paths:
 
 # === COMMANDS ===
 commands:
+  install: "make install"
+  check_deps: "make check-deps"
   dev: null
   build: null
-  test: null
+  test: "make test"
   test_report: "make test-report"
   lint: null
   smoke: "curl -s -o /dev/null -w '%{http_code}' --max-time 10 https://qr.varga.media"  # 302 hinter CF Access = OK
