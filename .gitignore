@@ -43,3 +43,7 @@ wlan_qr_*.png
 00_infos/.llm-context.md.lock
 90_reports/.changes.md.lock
 00_infos/runtime/session-context-records/
+AGENTS.md
+.gemini/knowledge.md
+.opencode/context.md
+.claude/
