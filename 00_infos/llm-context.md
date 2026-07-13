@@ -1,6 +1,6 @@
 # QR Code Maker - LLM Context
 
-> Version: 2.4.1
+> Version: 2.4.2
 > Stand: 13.07.2026
 > Status: **FEATURE-COMPLETE**
 
@@ -72,6 +72,19 @@ Smoke stehen in `00_infos/runbooks/static-site-operations.md`.
 - Browser-Eingaben bleiben clientseitig; Inhalte werden nicht serverseitig gespeichert.
 - Oeffentliche Artefakte: `/`, `robots.txt`, `sitemap.xml` und `llms.txt`.
 - Fleet-Deployment und Access-Grenze kommen aus `infra--ci-cd`.
+
+## Setup
+
+Die Anwendung ist statisch und benötigt keinen Build. Für eine lokale Sichtung
+kann sie mit einer vorhandenen Python-Umgebung ausgeliefert werden:
+
+```bash
+python3 -m http.server 8000
+```
+
+Die optionale E2E-Suite verwendet die in `requirements.txt` deklarierten
+Testwerkzeuge. Abhängigkeiten oder Browser werden nicht automatisch installiert;
+mit bereits vorhandener Umgebung läuft die Prüfung über `pytest 87_tests/ -v`.
 
 ## STOP/HOLD/ASK/CONFIRM
 
