@@ -39,9 +39,9 @@ paths:
 
 # === COMMANDS ===
 commands:
-  dev: null
+  dev: "python3 -m http.server 8765"
   build: null
-  test: null
+  test: "pytest 87_tests/ -v"
   test_report: "make test-report"
   lint: null
   smoke: "curl -s -o /dev/null -w '%{http_code}' --max-time 10 https://qr.varga.media"  # 302 hinter CF Access = OK
@@ -61,7 +61,7 @@ lifecycle:
   state: "active"
   kill_date: null
   owner: "christoph@varga.media"
-  last_review: "2026-05-22"
+  last_review: "2026-07-13"
 
 operational:
   auth_boundary: "cf-access-isolated"
@@ -78,3 +78,6 @@ env:
 depends_on:
   services: []
   repos: ["infra--ci-cd"]
+
+documentation:
+  reviewed_paths: ["00_infos/llm-context.md", "index.html", "script.js", "nginx.conf", "docker-compose.hetzner.yml"]

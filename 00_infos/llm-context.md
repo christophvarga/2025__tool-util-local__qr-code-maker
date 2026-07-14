@@ -1,7 +1,7 @@
 # QR Code Maker - LLM Context
 
-> Version: 2.4.0
-> Stand: 11.06.2026
+> Version: 2.4.2
+> Stand: 13.07.2026
 > Status: **FEATURE-COMPLETE**
 
 ## Ziel & Scope
@@ -49,11 +49,42 @@ Lokales und live verfuegbares QR-Code-Generator-Tool als standalone Web-App. Lae
 ## Tech Stack
 
 - **Frontend:** Vanilla JS (ES6+), HTML5, CSS3
-- **QR-Library:** qrcode-generator@1.4.4 (CDN, SRI-gesichert)
-- **Fonts:** Google Fonts - Outfit
+- **QR-Library:** qrcode-generator@1.4.4, lokal unter `vendor/qrcode.min.js`
+- **Fonts:** Fraunces und Outfit, lokal unter `fonts/`
 - **Tests:** Playwright (Python) - 94 E2E-Tests
-- **CI/CD:** Woodpecker CI (Auto-Merge) + GitHub Actions (Deploy)
+- **CI/CD:** Woodpecker CI, Deployment aus `main`
 - **Container:** Nginx Alpine mit Custom-Config (Gzip, Caching, Health-Endpoint)
+
+## Architektur
+
+`index.html`, `styles.css` und `script.js` bilden eine rein clientseitige App.
+Die QR-Bibliothek und Fonts liegen versioniert im Repo. Nginx liefert die
+statischen Dateien aus; es gibt weder Backend noch Datenbank.
+
+## Betrieb
+
+Die App laeuft auf `hetzner-fsn1` hinter isoliertem Cloudflare Access. Der
+kanonische Health-Zielpfad ist `https://qr.varga.media/`. Diagnose und lokaler
+Smoke stehen in `00_infos/runbooks/static-site-operations.md`.
+
+## Schnittstellen
+
+- Browser-Eingaben bleiben clientseitig; Inhalte werden nicht serverseitig gespeichert.
+- Oeffentliche Artefakte: `/`, `robots.txt`, `sitemap.xml` und `llms.txt`.
+- Fleet-Deployment und Access-Grenze kommen aus `infra--ci-cd`.
+
+## Setup
+
+Die Anwendung ist statisch und benötigt keinen Build. Für eine lokale Sichtung
+kann sie mit einer vorhandenen Python-Umgebung ausgeliefert werden:
+
+```bash
+python3 -m http.server 8000
+```
+
+Die optionale E2E-Suite verwendet die in `requirements.txt` deklarierten
+Testwerkzeuge. Abhängigkeiten oder Browser werden nicht automatisch installiert;
+mit bereits vorhandener Umgebung läuft die Prüfung über `pytest 87_tests/ -v`.
 
 ## STOP/HOLD/ASK/CONFIRM
 
@@ -98,8 +129,8 @@ make test-report  # Tests mit JUnit/Coverage-Artefakten
 
 ## Security
 
-- **CSP:** Content Security Policy via Meta-Tag (script-src self + jsdelivr, style-src self + googleapis)
-- **SRI:** Subresource Integrity Hash auf qrcode-generator CDN-Script
+- **CSP:** Content Security Policy begrenzt aktive Inhalte auf lokale Quellen und Analytics
+- **Supply Chain:** QR-Bibliothek und Fonts sind versioniert und werden lokal ausgeliefert
 - **Input-Validierung:** Max-Length auf Textfeldern, WiFi-Sonderzeichen-Escaping
 - **File-Upload:** 5MB Limit, MIME-Type-Pruefung, Dimensions-Check (4096px max)
 - **Error-Handling:** try-catch um Canvas-Ops, FileReader, Download
